@@ -9,5 +9,7 @@ class LogisticsSystemApplicationTests {
 	@Test
 	void contextLoads() {
 	}
+    void contextLoads() {
 
 }
+    void testLogicTinhChiPhiDuKien() {
