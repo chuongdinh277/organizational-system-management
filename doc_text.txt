@@ -1,0 +1,139 @@
+﻿PHáº¦N I: Äá»ŠNH NGHÄ¨A BÃ€I TOÃN (PROBLEM DEFINITION)
+1. Hiá»‡n tráº¡ng vÃ  ThÃ¡ch thá»©c (Current Situation &amp; Pain Points)
+TrÆ°á»›c khi cÃ³ há»‡ thá»‘ng, viá»‡c tá»• chá»©c háº­u cáº§n cho cÃ¡c há»™i tháº£o Ä‘Æ°á»£c thá»±c hiá»‡n hoÃ n toÃ n thá»§ cÃ´ng hoáº·c bÃ¡n thá»§ cÃ´ng. Trung tÃ¢m Ä‘iá»u phá»‘i gáº·p pháº£i cÃ¡c thÃ¡ch thá»©c nghiÃªm trá»ng:
+PhÃ¢n tÃ¡n thÃ´ng tin:
+ Äiá»u phá»‘i viÃªn pháº£i lÃ m viá»‡c qua nhiá»u kÃªnh ráº£i rÃ¡c (Zalo, gá»i Ä‘iá»‡n, Email cÃ¡ nhÃ¢n, Excel) vá»›i nhiá»u bÃªn (ChuyÃªn gia, KhÃ¡ch sáº¡n, CÃ´ng ty du lá»‹ch). Dá»¯ liá»‡u dá»… bá»‹ trÃ´i, máº¥t mÃ¡t hoáº·c tam sao tháº¥t báº£n.
+Quy trÃ¬nh Ä‘Ã m phÃ¡n há»£p Ä‘á»“ng kÃ©m hiá»‡u quáº£:
+ Viá»‡c gá»­i, nháº­n, chá»‰nh sá»­a vÃ  theo dÃµi cÃ¡c phiÃªn báº£n há»£p Ä‘á»“ng vá»›i khÃ¡ch sáº¡n ráº¥t dá»… nháº§m láº«n. KhÃ´ng cÃ³ nÆ¡i lÆ°u trá»¯ táº­p trung báº£n chá»‘t cuá»‘i cÃ¹ng (Final Version) mang tÃ­nh phÃ¡p lÃ½.
+Rá»§i ro sai sÃ³t do yáº¿u tá»‘ con ngÆ°á»i (Human Error):
+ QuÃªn ngÃ y Ä‘áº·t vÃ© mÃ¡y bay, tÃ­nh toÃ¡n sai sá»‘ lÆ°á»£ng tÃ i liá»‡u in áº¥n, hoáº·c quÃªn gá»­i yÃªu cáº§u in áº¥n Ä‘Ãºng háº¡n (dáº«n Ä‘áº¿n khÃ´ng cÃ³ tÃ i liá»‡u khi há»™i tháº£o diá»…n ra).
+KhÃ³ theo dÃµi tiáº¿n Ä‘á»™ tá»•ng thá»ƒ:
+ Bá»™ pháº­n Äáº·t chá»— (ngÆ°á»i táº¡o yÃªu cáº§u) khÃ´ng biáº¿t tiáº¿n Ä‘á»™ chuáº©n bá»‹ háº­u cáº§n Ä‘Ã£ Ä‘áº¿n Ä‘Ã¢u, gÃ¢y khÃ³ khÄƒn cho viá»‡c thÃ´ng bÃ¡o tá»›i khÃ¡ch hÃ ng/há»c viÃªn.
+2. PhÃ¡t biá»ƒu bÃ i toÃ¡n (Problem Statement)
+Cáº§n xÃ¢y dá»±ng má»™t 
+Há»‡ thá»‘ng Quáº£n lÃ½ Háº­u cáº§n Há»™i tháº£o (Seminar Logistics System)
+ Ä‘Ã³ng vai trÃ² lÃ  má»™t trung tÃ¢m Ä‘iá»u phá»‘i (Hub) sá»‘ hÃ³a. Há»‡ thá»‘ng pháº£i tiáº¿p nháº­n yÃªu cáº§u tá»« Ä‘áº§u vÃ o, tá»± Ä‘á»™ng hÃ³a cÃ¡c khÃ¢u tÃ­nh toÃ¡n tÃ i nguyÃªn, chuáº©n hÃ³a luá»“ng giao tiáº¿p vá»›i Ä‘á»‘i tÃ¡c (tá»± Ä‘á»™ng sinh form, email, PDF) vÃ  giÃ¡m sÃ¡t cháº·t cháº½ tiáº¿n Ä‘á»™ cá»§a tá»«ng háº¡ng má»¥c (Äá»‹a Ä‘iá»ƒm, Äi láº¡i, TÃ i liá»‡u) cho Ä‘áº¿n khi sá»± kiá»‡n sáºµn sÃ ng.
+3. Má»¥c tiÃªu dá»± Ã¡n (Project Objectives)
+Tá»± Ä‘á»™ng hÃ³a (Automation):
+ Giáº£m thiá»ƒu 80% cÃ¡c tÃ¡c vá»¥ tÃ­nh toÃ¡n thá»§ cÃ´ng (tÃ­nh diá»‡n tÃ­ch phÃ²ng, tÃ­nh sá»‘ lÆ°á»£ng áº¥n pháº©m) vÃ  thao tÃ¡c láº·p láº¡i (gá»­i email xin bÃ¡o giÃ¡, táº¡o form yÃªu cáº§u).
+Táº­p trung hÃ³a (Centralization):
+ Sá»‘ hÃ³a 100% há»“ sÆ¡, lá»‹ch trÃ¬nh chuyÃªn gia vÃ  cÃ¡c phiÃªn báº£n há»£p Ä‘á»“ng vá»›i Ä‘á»‘i tÃ¡c vá» má»™t cÆ¡ sá»Ÿ dá»¯ liá»‡u duy nháº¥t.
+Quáº£n trá»‹ rá»§i ro (Risk Management):
+ XÃ¢y dá»±ng há»‡ thá»‘ng cáº£nh bÃ¡o (Alert) tá»± Ä‘á»™ng trÆ°á»›c thá»i háº¡n (deadline) Ä‘á»ƒ Ä‘áº£m báº£o khÃ´ng bá» sÃ³t báº¥t ká»³ háº¡ng má»¥c háº­u cáº§n nÃ o.
+PHáº¦N II: PHáº M VI Há»† THá»NG VÃ€ RÃ€NG BUá»˜C (SYSTEM SCOPE &amp; CONSTRAINTS)
+1. Ranh giá»›i há»‡ thá»‘ng (System Boundaries)
+Há»‡ thá»‘ng Háº­u cáº§n Há»™i tháº£o lÃ  má»™t Module Ä‘á»™c láº­p, náº±m á»Ÿ lá»›p giá»¯a (Middleware Logic) trong tá»•ng thá»ƒ há»‡ sinh thÃ¡i pháº§n má»m cá»§a doanh nghiá»‡p.
+Äáº§u vÃ o (Input):
+ Nháº­n "Lá»‡nh yÃªu cáº§u tá»• chá»©c" tá»« Há»‡ thá»‘ng Äáº·t chá»—.
+Äáº§u ra (Output):
+ CÃ¡c vÄƒn báº£n phÃ¡p lÃ½/hÃ nh chÃ­nh (Há»£p Ä‘á»“ng Ä‘Ã£ duyá»‡t, File PDF YÃªu cáº§u xuáº¥t vÃ©, File PDF Phiáº¿u váº­n chuyá»ƒn) gá»­i cho cÃ¡c Äá»‘i tÃ¡c thá»±c thi.
+2. Pháº¡m vi trong há»‡ thá»‘ng (In-Scope)
+Há»‡ thá»‘ng cam káº¿t thá»±c hiá»‡n trá»n váº¹n cÃ¡c nhÃ³m chá»©c nÄƒng cá»‘t lÃµi sau:
+Quáº£n trá»‹ VÃ²ng Ä‘á»i (Workflow Management):
+ Theo dÃµi vÃ  chuyá»ƒn Ä‘á»•i tráº¡ng thÃ¡i cá»§a há»™i tháº£o tá»« lÃºc tiáº¿p nháº­n yÃªu cáº§u Ä‘áº¿n khi sáºµn sÃ ng tá»• chá»©c.
+Quáº£n trá»‹ ThÃ´ng tin ChuyÃªn gia (Expert Profile Management):
+ LÆ°u trá»¯ thÃ´ng tin phá»¥c vá»¥ háº­u cáº§n (Giáº¥y tá» tÃ¹y thÃ¢n, Sá»Ÿ thÃ­ch Ä‘i láº¡i, Lá»‹ch sá»­ chuyáº¿n Ä‘i), thá»±c hiá»‡n giao thá»©c má»i vÃ  chá»‘t lá»‹ch trÃ¬nh.
+Quáº£n trá»‹ TÃ i nguyÃªn &amp; Há»£p Ä‘á»“ng (Resource &amp; Contract Management):
+ TÃ¬m kiáº¿m khÃ¡ch sáº¡n, tÃ­nh toÃ¡n dá»± toÃ¡n thiáº¿t bá»‹/diá»‡n tÃ­ch, theo dÃµi luá»“ng Ä‘Ã m phÃ¡n (Version Control) vÃ  lÆ°u trá»¯ há»£p Ä‘á»“ng.
+Quáº£n trá»‹ Váº­n hÃ nh (Operations Management):
+ Xuáº¥t lá»‡nh Ä‘áº·t vÃ© mÃ¡y bay, tÃ­nh toÃ¡n sá»‘ lÆ°á»£ng áº¥n pháº©m, xuáº¥t phiáº¿u váº­n chuyá»ƒn vÃ  há»‡ thá»‘ng cáº£nh bÃ¡o thá»i gian thá»±c (Real-time Alerts).
+3. Pháº¡m vi ngoÃ i há»‡ thá»‘ng (Out-of-Scope)
+Äá»ƒ trÃ¡nh hiá»‡n tÆ°á»£ng phÃ¬nh to yÃªu cáº§u (Scope Creep), dá»± Ã¡n nÃ y KHÃ”NG bao gá»“m cÃ¡c nghiá»‡p vá»¥ sau:
+Nghiá»‡p vá»¥ BÃ¡n hÃ ng (Sales / Ticketing):
+ Há»‡ thá»‘ng khÃ´ng quáº£n lÃ½ danh sÃ¡ch há»c viÃªn, khÃ´ng thá»±c hiá»‡n bÃ¡n vÃ© tham dá»±, khÃ´ng chÄƒm sÃ³c khÃ¡ch hÃ ng (CRM).
+Nghiá»‡p vá»¥ Káº¿ toÃ¡n (Accounting):
+ Há»‡ thá»‘ng chá»‘t sá»‘ tiá»n há»£p Ä‘á»“ng, nhÆ°ng viá»‡c chuyá»ƒn khoáº£n, xuáº¥t hÃ³a Ä‘Æ¡n VAT, tÃ­nh thuáº¿, chi tráº£ thÃ¹ lao cho chuyÃªn gia thuá»™c vá» Há»‡ thá»‘ng Káº¿ toÃ¡n.
+Quáº£n lÃ½ Thá»±c thi Äá»‘i tÃ¡c (Partner Execution):
+ Há»‡ thá»‘ng chá»‰ "phÃ¡t lá»‡nh" (YÃªu cáº§u Ä‘áº·t vÃ©/váº­n chuyá»ƒn). Viá»‡c cÃ´ng ty du lá»‹ch dÃ¹ng há»‡ thá»‘ng nÃ o Ä‘á»ƒ mua vÃ©, hoáº·c xÆ°á»Ÿng in dÃ¹ng mÃ¡y in nÃ o Ä‘á»ƒ in sÃ¡ch lÃ  nghiá»‡p vá»¥ ná»™i bá»™ cá»§a há».
+Ná»™i dung ÄÃ o táº¡o (Content/LMS):
+ KhÃ´ng quáº£n lÃ½ cháº¥t lÆ°á»£ng bÃ i giáº£ng, khÃ´ng lÆ°u trá»¯ Slide trÃ¬nh chiáº¿u cá»§a chuyÃªn gia.
+PHáº¦N III: YÃŠU Cáº¦U CHá»¨C NÄ‚NG (FUNCTIONAL REQUIREMENTS)
+PhÃ¢n há»‡ 1: Tiáº¿p nháº­n vÃ  Khá»Ÿi táº¡o há»“ sÆ¡
+F1.1 - Tiáº¿p nháº­n thÃ´ng tin:
+ Há»‡ thá»‘ng cung cáº¥p API/Giao diá»‡n Ä‘á»ƒ Bá»™ pháº­n Äáº·t chá»— nháº­p liá»‡u. CÃ¡c trÆ°á»ng báº¯t buá»™c bao gá»“m: Loáº¡i há»™i tháº£o, NgÃ y tá»• chá»©c dá»± kiáº¿n, ThÃ nh phá»‘, TÃªn/ID ChuyÃªn gia, vÃ  Sá»‘ lÆ°á»£ng ngÆ°á»i Ä‘Äƒng kÃ½ dá»± kiáº¿n.
+F1.2 - Táº¡o má»›i há»“ sÆ¡:
+ Dá»±a trÃªn dá»¯ liá»‡u Ä‘áº§u vÃ o, há»‡ thá»‘ng tá»± Ä‘á»™ng sinh mÃ£ ID Há»“ sÆ¡ vÃ  gáº¯n tráº¡ng thÃ¡i khá»Ÿi Ä‘iá»ƒm lÃ  
+[Má»›i táº¡o / Chá» xá»­ lÃ½]
+.
+F1.3 - Cáº£nh bÃ¡o khá»Ÿi táº¡o:
+ Há»‡ thá»‘ng tá»± Ä‘á»™ng gá»­i thÃ´ng bÃ¡o (Web-push notification bÃ¡o Ä‘á» trÃªn mÃ n hÃ¬nh) vÃ  Email ná»™i bá»™ cho Äiá»u phá»‘i viÃªn (Admin) Ä‘á»ƒ tiáº¿p nháº­n yÃªu cáº§u.
+PhÃ¢n há»‡ 2: Káº¿t ná»‘i vÃ  Chá»‘t lá»‹ch ChuyÃªn gia
+F2.1 - Gá»­i lá»i má»i tá»± Ä‘á»™ng:
+ Admin thao tÃ¡c báº¥m gá»­i, há»‡ thá»‘ng tá»± Ä‘á»™ng sinh ra má»™t Ä‘Æ°á»ng link Token mÃ£ hÃ³a gá»­i qua Email cho chuyÃªn gia Ä‘á»ƒ má»i tá»• chá»©c há»™i tháº£o.
+F2.2 - Xá»­ lÃ½ pháº£n há»“i tá»« chuyÃªn gia:
+Luá»“ng Äá»“ng Ã½:
+ Náº¿u chuyÃªn gia click Ä‘á»“ng Ã½, há»‡ thá»‘ng yÃªu cáº§u nháº­p Lá»‹ch trÃ¬nhmong muá»‘n. Há»‡ thá»‘ng chuyá»ƒn tráº¡ng thÃ¡i sang 
+[Äang xá»­ lÃ½ háº­u cáº§n]
+ vÃ  bÃ¡o Ä‘Äƒng kÃ½ thÃ nh cÃ´ng cho BP Äáº·t chá»—.
+Luá»“ng Tá»« chá»‘i:
+ Náº¿u chuyÃªn gia click tá»« chá»‘i (kÃ¨m lÃ½ do), há»‡ thá»‘ng chuyá»ƒn tráº¡ng thÃ¡i sang 
+[Bá»‹ tá»« chá»‘i / Táº¡m dá»«ng]
+, Ä‘á»“ng thá»i cáº£nh bÃ¡o ngÆ°á»£c láº¡i cho BP Äáº·t chá»— Ä‘á»ƒ há» cáº­p nháº­t chuyÃªn gia má»›i hoáº·c há»§y há»“ sÆ¡.
+PhÃ¢n há»‡ 3: Quáº£n lÃ½ Äá»‹a Ä‘iá»ƒm &amp; Há»£p Ä‘á»“ng
+F3.1 - Dá»± toÃ¡n tÃ i nguyÃªn tá»± Ä‘á»™ng:
+ Dá»±a vÃ o Sá»‘ lÆ°á»£ng ngÆ°á»i vÃ  Loáº¡i há»™i tháº£o, há»‡ thá»‘ng tá»± Ä‘á»™ng xuáº¥t báº£ng dá»± toÃ¡n: KÃ­ch thÆ°á»›c phÃ²ng tá»‘i thiá»ƒu (m^2), Kiá»ƒu setup bÃ n gháº¿, vÃ  Danh má»¥c thiáº¿t bá»‹ nghe nhÃ¬n cáº§n thiáº¿t.
+F3.2 - Tra cá»©u &amp; Gá»£i Ã½ Ä‘á»‹a Ä‘iá»ƒm:
+ Admin nháº­p tá»« khÃ³a (ThÃ nh phá»‘, Sá»©c chá»©a). Há»‡ thá»‘ng truy váº¥n cÆ¡ sá»Ÿ dá»¯ liá»‡u vÃ  tráº£ vá» danh sÃ¡ch KhÃ¡ch sáº¡n/Trung tÃ¢m há»™i nghá»‹ kháº£ thi, hiá»ƒn thá»‹ kÃ¨m chi phÃ­ Æ°á»›c tÃ­nh.
+F3.3 - YÃªu cáº§u Ä‘áº·t phÃ²ng:
+ Admin chá»n 1 Ä‘á»‹a Ä‘iá»ƒm, há»‡ thá»‘ng tá»± Ä‘á»™ng sinh form "YÃªu cáº§u Ä‘áº·t phÃ²ng" (chá»©a thÃ´ng tin dá»± toÃ¡n, sá»‘ ngÆ°á»i, ngÃ y giá») vÃ  gá»­i Email Ä‘áº¿n Sales Manager cá»§a Ä‘á»‹a Ä‘iá»ƒm Ä‘Ã³.
+F3.4 - Quáº£n lÃ½ phiÃªn báº£n há»£p Ä‘á»“ng (Version Control):
+ Há»‡ thá»‘ng cho phÃ©p Sales
+ Ä‘á»“ng Ã½ hoáº·c tá»« chá»‘i. Náº¿u tá»« chá»‘i thÃ¬ gá»­i thÃ´ng bÃ¡o Ä‘á»ƒ admin tÃ¬m Ä‘á»‹a Ä‘iá»ƒm khÃ¡c. Náº¿u Ä‘á»“ng Ã½ 
+Sales Manager upload file há»£p Ä‘á»“ng nhÃ¡p. Admin xem xÃ©t vÃ  cÃ³ thá»ƒ "Ghi chÃº yÃªu cáº§u chá»‰nh sá»­a" (tráº£ láº¡i file) hoáº·c "Táº£i lÃªn báº£n sá»­a Ä‘á»•i". QuÃ¡ trÃ¬nh láº·p láº¡i cho Ä‘áº¿n khi 2 bÃªn Ä‘á»“ng thuáº­n.
+F3.5 - PhÃª duyá»‡t há»£p Ä‘á»“ng:
+ Admin báº¥m "PhÃª duyá»‡t". Há»‡ thá»‘ng lÆ°u trá»¯ báº£n há»£p Ä‘á»“ng cuá»‘i cÃ¹ng, tá»± Ä‘á»™ng gá»­i báº£n chá»‘t cho Sales Manager vÃ  chuyá»ƒn tráº¡ng thÃ¡i há»“ sÆ¡ sang 
+[ÄÃ£ chá»‘t Ä‘á»‹a Ä‘iá»ƒm]
+.
+PhÃ¢n há»‡ 4: Quáº£n lÃ½ Äi láº¡i &amp; Äáº·t vÃ©
+F4.1 - Thiáº¿t láº­p phÆ°Æ¡ng Ã¡n di chuyá»ƒn:
+ Admin dá»±a vÃ o lá»‹ch trÃ¬nh chuyÃªn gia mong muá»‘n Ä‘á»ƒ táº¡o ra 2-3 phÆ°Æ¡ng Ã¡n vÃ© mÃ¡y bay gá»­i chuyÃªn gia lá»±a chá»n.
+F4.2 - Gá»­i YÃªu cáº§u xuáº¥t vÃ©:
+ Sau khi chá»‘t phÆ°Æ¡ng Ã¡n, há»‡ thá»‘ng tá»± Ä‘á»™ng sinh "Phiáº¿u yÃªu cáº§u Ä‘áº·t vÃ© mÃ¡y bay &amp; ÄÆ°a Ä‘Ã³n", gá»­i Email Ä‘áº¿n CÃ´ng ty du lá»‹ch kÃ¨m thÃ´ng tin giáº¥y tá» tÃ¹y thÃ¢n cá»§a chuyÃªn gia.
+F4.3 - Cáº­p nháº­t vÃ© &amp; Lá»‹ch trÃ¬nh:
+ Admin nháº­p mÃ£ vÃ© (Code vÃ© mÃ¡y bay) do CÃ´ng ty du lá»‹ch tráº£ vá» vÃ o há»‡ thá»‘ng. Há»‡ thá»‘ng tá»± Ä‘á»™ng gá»­i Email xÃ¡c nháº­n lá»‹ch trÃ¬nh chi tiáº¿t cho chuyÃªn gia.
+PhÃ¢n há»‡ 5: Quáº£n lÃ½ TÃ i liá»‡u &amp; ÄÃ³ng quy trÃ¬nh
+F5.1 - Cáº£nh bÃ¡o tá»± Ä‘á»™ng (Job Ä‘áº¿m ngÆ°á»£c 14 ngÃ y):
+ ÄÃºng 14 ngÃ y trÆ°á»›c "NgÃ y tá»• chá»©c dá»± kiáº¿n", há»‡ thá»‘ng tá»± Ä‘á»™ng báº­t cá» cáº£nh bÃ¡o Ä‘á» trÃªn Dashboard nháº¯c nhá»Ÿ Admin lÃ m tÃ i liá»‡u.
+F5.2 - TÃ­nh toÃ¡n sá»‘ lÆ°á»£ng áº¥n pháº©m:
+ Há»‡ thá»‘ng láº¥y Sá»‘ ngÆ°á»i Ä‘Äƒng kÃ½ thá»±c táº¿ chá»‘t cuá»‘i nhÃ¢n vá»›i Äá»‹nh má»©c bá»™ tÃ i liá»‡u tiÃªu chuáº©n Ä‘á»ƒ xuáº¥t ra con sá»‘ chÃ­nh xÃ¡c (SÃ¡ch, Tá» rÆ¡i, Tháº» tÃªn, v.v.).
+F5.3 - Káº¿t xuáº¥t Phiáº¿u váº­n chuyá»ƒn:
+ Há»‡ thá»‘ng tá»± Ä‘á»™ng sinh file PDF "YÃªu cáº§u Ä‘Ã³ng gÃ³i &amp; Váº­n chuyá»ƒn" (ghi rÃµ sá»‘ lÆ°á»£ng + Äá»‹a chá»‰ khÃ¡ch sáº¡n) gá»­i cho Bá»™ pháº­n Xá»­ lÃ½ tÃ i liá»‡u.
+F5.4 - HoÃ n táº¥t quy trÃ¬nh:
+ Sau khi nháº­n bÃ¡o cÃ¡o Ä‘Ã£ gá»­i hÃ ng tá»« BP TÃ i liá»‡u vÃ  xÃ¡c nháº­n Ä‘Ã£ nháº­n hÃ ng tá»« KhÃ¡ch sáº¡n, Admin báº¥m "HoÃ n táº¥t". Há»‡ thá»‘ng chuyá»ƒn tráº¡ng thÃ¡i há»“ sÆ¡ sang 
+[Sáºµn sÃ ng tá»• chá»©c]
+.
+PHáº¦N IV: YÃŠU Cáº¦U PHI CHá»¨C NÄ‚NG (NON-FUNCTIONAL REQUIREMENTS)
+- XÃ¡c thá»±c vÃ  PhÃ¢n quyá»n (RBAC - Role Based Access Control):
+Role_Reservation (BP Äáº·t chá»—): Chá»‰ cÃ³ quyá»n "ThÃªm má»›i" (Create), "Há»§y" hoáº·c "Cáº­p nháº­t" há»“ sÆ¡ Ä‘ang bá»‹ tá»« chá»‘i. KhÃ´ng Ä‘Æ°á»£c sá»­a/xÃ³a há»“ sÆ¡ Ä‘ang Ä‘Æ°á»£c háº­u cáº§n xá»­ lÃ½.
+Role_Admin_Logistics (Äiá»u phá»‘i viÃªn): CÃ³ toÃ n quyá»n thao tÃ¡c (Äá»c, Cáº­p nháº­t, PhÃª duyá»‡t há»£p Ä‘á»“ng, Xuáº¥t file) nhÆ°ng khÃ´ng cÃ³ quyá»n XÃ³a cá»©ng (Hard Delete) Ä‘á»ƒ Ä‘áº£m báº£o lÆ°u váº¿t dá»¯ liá»‡u.
+ - Báº£o máº­t dá»¯ liá»‡u (Data Security):
+ * CÃ¡c thÃ´ng tin nháº¡y cáº£m cá»§a chuyÃªn gia (CCCD, Há»™ chiáº¿u) vÃ  file Há»£p Ä‘á»“ng kinh táº¿ pháº£i Ä‘Æ°á»£c mÃ£ hÃ³a (VD: chuáº©n AES-256) trong CÆ¡ sá»Ÿ dá»¯ liá»‡u.
+CÃ¡c link xÃ¡c nháº­n gá»­i qua email cho chuyÃªn gia pháº£i sá»­ dá»¥ng Token cÃ³ thá»i háº¡n Ä‘á»ƒ trÃ¡nh rÃ² rá»‰ báº£o máº­t.
+- Hiá»‡u nÄƒng (Performance / Response Time):
+ * CÃ¡c thao tÃ¡c tra cá»©u tÃ¬m kiáº¿m (KhÃ¡ch sáº¡n, Lá»‹ch sá»­ chuyÃªn gia) pháº£i tráº£ vá» káº¿t quáº£ &lt; 5 giÃ¢y.
+CÃ¡c tÃ¡c vá»¥ náº·ng nhÆ° káº¿t xuáº¥t file
+ 
+pháº£i Ä‘Æ°á»£c Ä‘Æ°a vÃ o xá»­ lÃ½ báº¥t Ä‘á»“ng bá»™ (Background Job) Ä‘á»ƒ trÃ¡nh lÃ m treo trÃ¬nh duyá»‡t cá»§a ngÆ°á»i dÃ¹ng.
+- TÃ­ch há»£p há»‡ thá»‘ng (Integration):
+ * Há»‡ thá»‘ng Backend pháº£i tÃ­ch há»£p Ä‘Æ°á»£c vá»›i dá»‹ch vá»¥ Email Server (SMTP) Ä‘á»ƒ tá»± Ä‘á»™ng gá»­i thÃ´ng bÃ¡o, file Ä‘Ã­nh kÃ¨m, Ä‘Æ°á»ng link cho Ä‘á»‘i tÃ¡c mÃ  khÃ´ng cáº§n má»Ÿ trÃ¬nh duyá»‡t mail (Outlook/Gmail) riÃªng.
+- TiÃªu chuáº©n Ä‘á»‹nh dáº¡ng (Data Format):
+ ToÃ n bá»™ cÃ¡c tÃ i liá»‡u sinh ra tá»« há»‡ thá»‘ng (YÃªu cáº§u Ä‘áº·t phÃ²ng, Lá»‹ch trÃ¬nh di chuyá»ƒn, Phiáº¿u váº­n chuyá»ƒn) báº¯t buá»™c pháº£i xuáº¥t ra Ä‘á»‹nh dáº¡ng 
+- TÃ­nh kháº£ dá»¥ng vÃ  Trá»±c quan (Usability &amp; UI/UX)
+Use case:
+Báº¡n cáº§n báº£ng kiá»ƒu nÃ y:
+<w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblCellSpacing w:w="15" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/></w:tblBorders><w:tblCellMar><w:top w:w="15" w:type="dxa"/><w:left w:w="15" w:type="dxa"/><w:bottom w:w="15" w:type="dxa"/><w:right w:w="15" w:type="dxa"/></w:tblCellMar><w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="1" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/></w:tblPr><w:tblGrid><w:gridCol w:w="2191"/><w:gridCol w:w="3821"/></w:tblGrid><w:tr w:rsidR="002501AB" w:rsidRPr="002501AB" w14:paraId="24B730E3" w14:textId="77777777" w:rsidTr="002501AB"><w:trPr><w:tblHeader/><w:tblCellSpacing w:w="15" w:type="dxa"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="05D8CEB1" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:pPr><w:rPr><w:b/><w:bCs/></w:rPr></w:pPr><w:r w:rsidRPr="002501AB"><w:rPr><w:b/><w:bCs/></w:rPr><w:t>Actor
+<w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="697E134C" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:pPr><w:rPr><w:b/><w:bCs/></w:rPr></w:pPr><w:r w:rsidRPr="002501AB"><w:rPr><w:b/><w:bCs/></w:rPr><w:t>Vai trÃ²
+<w:trPr><w:tblCellSpacing w:w="15" w:type="dxa"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="22DB4BFC" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Admin / Coordinator
+<w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="51FEBC04" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Äiá»u phá»‘i há»™i tháº£o
+<w:trPr><w:tblCellSpacing w:w="15" w:type="dxa"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="25AEFCD7" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Bá»™ pháº­n Ä‘Äƒng kÃ½
+<w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="452689F0" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Gá»­i yÃªu cáº§u tá»• chá»©c
+<w:trPr><w:tblCellSpacing w:w="15" w:type="dxa"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="31DFC913" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>ChuyÃªn gia
+<w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="7131BB56" w14:textId="547F5888" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Giáº£ng dáº¡y
+/ thuyáº¿t trÃ¬nh
+<w:trPr><w:tblCellSpacing w:w="15" w:type="dxa"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="647AF1F4" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>CÃ´ng ty du lá»‹ch
+<w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="5BA10BC9" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Äáº·t vÃ©
+<w:trPr><w:tblCellSpacing w:w="15" w:type="dxa"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="663BC3D1" w14:textId="77777777" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>ÄÆ¡n vá»‹ Ä‘á»‹a Ä‘iá»ƒm
+<w:tcPr><w:tcW w:w="0" w:type="auto"/><w:vAlign w:val="center"/><w:hideMark/></w:tcPr><w:p w14:paraId="1DD40FF4" w14:textId="5F686234" w:rsidR="002501AB" w:rsidRPr="002501AB" w:rsidRDefault="002501AB" w:rsidP="002501AB"><w:r w:rsidRPr="002501AB"><w:t>Cung cáº¥p venue
+, cung cáº¥p há»£p Ä‘á»“ng
+Sequence diagram:
+<w:tab w:val="left" w:pos="1236"/></w:tabs></w:pPr><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:anchor distT="0" distB="0" distL="114300" distR="114300" simplePos="0" relativeHeight="251678720" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="6D734436" wp14:editId="1C2FC430"><wp:simplePos x="0" y="0"/><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>315595</wp:posOffset></wp:positionV><wp:extent cx="6120130" cy="5601335"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:wrapTopAndBottom/><wp:docPr id="731392302" name="Picture 7"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="731392302" name="Picture 731392302"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId10" cstate="print"><a:extLst><a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}"><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="6120130" cy="5601335"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r></w:p><w:p w14:paraId="35BE26A6" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="7E021907" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="7B56558E" w14:textId="6A80529D" w:rsidR="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="755DE691" w14:textId="130606ED" w:rsidR="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"><w:r><w:br w:type="page"/></w:r></w:p><w:p w14:paraId="69447904" w14:textId="1DCBC148" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="09D294A8" w14:textId="319A7C5B" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr></w:p><w:p w14:paraId="305285AF" w14:textId="652CC9CE" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="008A2399" w:rsidP="001F6062"><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:anchor distT="0" distB="0" distL="114300" distR="114300" simplePos="0" relativeHeight="251672576" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="0246DCED" wp14:editId="13A4EA15"><wp:simplePos x="0" y="0"/><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>314960</wp:posOffset></wp:positionV><wp:extent cx="6120130" cy="6426200"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:wrapTopAndBottom/><wp:docPr id="1065753150" name="Picture 1"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="1065753150" name="Picture 1065753150"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId11" cstate="print"><a:extLst><a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}"><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="6120130" cy="6426200"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r></w:p><w:p w14:paraId="5CE84A82" w14:textId="5DED71D8" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="68FD5E05" w14:textId="70C7C0E2" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="14C50ED3" w14:textId="6BDB9239" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="4C25F77C" w14:textId="01E95C25" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="3B6AEBE0" w14:textId="3694A2D1" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="0AB6471F" w14:textId="7D402187" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="77BE5EF3" w14:textId="3B11D71B" w:rsidR="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr></w:p><w:p w14:paraId="0F3932F5" w14:textId="0B2D595D" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="008A2399" w:rsidP="001F6062"><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:anchor distT="0" distB="0" distL="114300" distR="114300" simplePos="0" relativeHeight="251673600" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="65CA0D2A" wp14:editId="2845AA59"><wp:simplePos x="0" y="0"/><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>315595</wp:posOffset></wp:positionV><wp:extent cx="6120130" cy="3143250"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:wrapTopAndBottom/><wp:docPr id="860490669" name="Picture 2"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="860490669" name="Picture 860490669"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId12" cstate="print"><a:extLst><a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}"><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="6120130" cy="3143250"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r><w:r><w:tab/></w:r></w:p><w:p w14:paraId="4D228A0C" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="20677115" w14:textId="5F6A43E3" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="00FC7460" w:rsidP="001F6062"><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="4"/></w:numPr></w:pPr><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:anchor distT="0" distB="0" distL="114300" distR="114300" simplePos="0" relativeHeight="251674624" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="0ABB47D1" wp14:editId="2B80241C"><wp:simplePos x="0" y="0"/><wp:positionH relativeFrom="column"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>320675</wp:posOffset></wp:positionV><wp:extent cx="6120130" cy="4018280"/><wp:effectExtent l="0" t="0" r="0" b="1270"/><wp:wrapTopAndBottom/><wp:docPr id="1541808486" name="Picture 3"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="1541808486" name="Picture 1541808486"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId13" cstate="print"><a:extLst><a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}"><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="6120130" cy="4018280"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r></w:p><w:p w14:paraId="6C8A3EFD" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="15D097F5" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="1C6C21B6" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="2BD67769" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="399E4B80" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="45587481" w14:textId="77777777" w:rsidR="001F6062" w:rsidRPr="001F6062" w:rsidRDefault="001F6062" w:rsidP="001F6062"/><w:p w14:paraId="2B9FB5FA" w14:textId="77777777" w:rsidR="001F6062" w:rsidRDefault="001F6062" w:rsidP="002501AB"><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Activity diagram:
