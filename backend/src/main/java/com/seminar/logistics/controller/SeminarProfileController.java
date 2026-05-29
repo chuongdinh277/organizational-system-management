@@ -141,16 +141,29 @@ public class SeminarProfileController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("BP Đặt chỗ không thể hủy hồ sơ đang trong hậu cần!");
             }
+
+            if ("Mới tạo / Chờ xử lý".equals(profile.getStatus()) && profile.getExpertToken() != null) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Điều phối viên đã gửi lời mời chuyên gia. BP Đặt chỗ không thể hủy hồ sơ này nữa!");
+            }
         }
 
         profile.setStatus("Đã hủy");
+        profile.setExpertToken(null);
+        profile.setExpertTokenExpiry(null);
         profileRepository.save(profile);
         return ResponseEntity.ok(profile);
     }
 
     // F2.1 - Send invite to Expert (Only Admin Logistics or BP Đặt chỗ)
     @PostMapping("/{id}/invite")
-    public ResponseEntity<?> inviteExpert(@PathVariable String id) {
+    public ResponseEntity<?> inviteExpert(
+            @RequestHeader(value = "X-Role", defaultValue = "Role_Admin_Logistics") String role,
+            @PathVariable String id) {
+        if (!"Role_Admin_Logistics".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Chỉ Điều phối viên (Admin) mới có quyền gửi lời mời chuyên gia!");
+        }
+
         try {
             SeminarProfile profile = profileService.sendExpertInvitation(id);
             return ResponseEntity.ok(profile);
@@ -288,7 +301,11 @@ public class SeminarProfileController {
 
     // F5.1 - Manual countdown trigger (for demo)
     @PostMapping("/check-countdown")
-    public ResponseEntity<?> checkCountdown() {
+    public ResponseEntity<?> checkCountdown(
+            @RequestHeader(value = "X-Role", defaultValue = "Role_Admin_Logistics") String role) {
+        if (!"Role_Admin_Logistics".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Chỉ Điều phối viên (Admin) mới có quyền chạy job cảnh báo!");
+        }
         return ResponseEntity.ok(profileService.check14DaysCountdown());
     }
 
@@ -313,7 +330,13 @@ public class SeminarProfileController {
 
     // F5.3 - BP Tai lieu confirms documents are ready
     @PostMapping("/{id}/doc-ready")
-    public ResponseEntity<?> docReady(@PathVariable String id) {
+    public ResponseEntity<?> docReady(
+            @RequestHeader(value = "X-Role", defaultValue = "Role_Doc_Processor") String role,
+            @PathVariable String id) {
+        if (!"Role_Doc_Processor".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Chỉ BP Xử lý tài liệu mới có quyền xác nhận tài liệu đã sẵn sàng!");
+        }
+
         try {
             SeminarProfile profile = profileService.markDocumentReady(id);
             return ResponseEntity.ok(profile);

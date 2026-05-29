@@ -84,7 +84,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Yêu cầu khởi tạo mới",
                 "Hồ sơ " + profileId + " đã được tạo bởi BP Đặt chỗ và đang chờ tiếp nhận.",
-                "CREATE"
+                "CREATE",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return savedProfile;
@@ -95,6 +97,10 @@ public class SeminarProfileService {
         SeminarProfile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
 
+        if ("Đã hủy".equals(profile.getStatus())) {
+            throw new IllegalStateException("Không thể gửi lời mời chuyên gia cho hồ sơ đã hủy.");
+        }
+
         profile.setExpertToken(UUID.randomUUID().toString());
         profile.setExpertTokenExpiry(LocalDateTime.now().plusDays(7));
         SeminarProfile saved = profileRepository.save(profile);
@@ -104,7 +110,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã gửi lời mời chuyên gia",
                 "Đường link token mời tham gia đã gửi tới email chuyên gia: " + profile.getExpert().getEmail(),
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -120,6 +128,10 @@ public class SeminarProfileService {
         SeminarProfile profile = profileRepository.findByExpertToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ hoặc đã hết hạn"));
 
+        if ("Đã hủy".equals(profile.getStatus())) {
+            throw new IllegalStateException("Hồ sơ đã hủy, chuyên gia không thể xác nhận tham gia.");
+        }
+
         if (profile.getExpertTokenExpiry().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Token đã quá hạn sử dụng");
         }
@@ -134,7 +146,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Chuyên gia ĐỒNG Ý",
                 "Chuyên gia hội thảo " + profile.getId() + " đã đồng ý tham gia. Ngày chốt: " + (confirmedDate != null ? confirmedDate.toString() : profile.getExpectedDate().toString()) + ". Lịch trình: " + desiredSchedule,
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profile.getId()
         );
 
         return saved;
@@ -145,6 +159,10 @@ public class SeminarProfileService {
         SeminarProfile profile = profileRepository.findByExpertToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ hoặc đã hết hạn"));
 
+        if ("Đã hủy".equals(profile.getStatus())) {
+            throw new IllegalStateException("Hồ sơ đã hủy, chuyên gia không thể phản hồi lời mời.");
+        }
+
         profile.setExpertNotes(reason);
         profile.setStatus("Bị từ chối / Tạm dừng");
         SeminarProfile saved = profileRepository.save(profile);
@@ -152,7 +170,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Chuyên gia TỪ CHỐI",
                 "Chuyên gia của hội thảo " + profile.getId() + " từ chối vì lý do: " + reason,
-                "REJECT"
+                "REJECT",
+                "Role_Reservation",
+                profile.getId()
         );
 
         return saved;
@@ -238,7 +258,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã gửi yêu cầu đặt phòng",
                 "Đã gửi email yêu cầu đặt phòng và form PDF tới Sales Manager của khách sạn " + venue.getName(),
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return savedSv;
@@ -258,7 +280,9 @@ public class SeminarProfileService {
             notificationService.broadcastNotification(
                     "Khách sạn TỪ CHỐI đặt phòng",
                     "Khách sạn " + sv.getVenue().getName() + " đã từ chối đặt phòng. Lý do: " + reason,
-                    "REJECT"
+                    "REJECT",
+                    "Role_Admin_Logistics",
+                    profile.getId()
             );
         } else {
             sv.setStatus("CONTRACT_NEGOTIATION");
@@ -280,7 +304,9 @@ public class SeminarProfileService {
             notificationService.broadcastNotification(
                     "Khách sạn ĐỒNG Ý & Tải hợp đồng nháp",
                     "Khách sạn " + sv.getVenue().getName() + " đã tải lên bản hợp đồng nháp v1. Vui lòng xem xét.",
-                    "SUCCESS"
+                    "SUCCESS",
+                    "Role_Admin_Logistics",
+                    profile.getId()
             );
         }
 
@@ -311,7 +337,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã tải lên bản hợp đồng sửa đổi",
                 String.format("Bản hợp đồng sửa đổi v%d đã được tải lên bởi %s. Ghi chú: %s", nextVersion, uploadedBy, notes),
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -351,7 +379,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Hợp đồng ĐÃ PHÊ DUYỆT",
                 "Hợp đồng hội thảo " + profileId + " đã được Admin phê duyệt chính thức. Đã chốt địa điểm.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -395,7 +425,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã đề xuất phương án vé máy bay",
                 "Đã tạo " + flights.size() + " phương án di chuyển gửi chuyên gia lựa chọn.",
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return savedOptions;
@@ -432,7 +464,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Chuyên gia đã chốt vé máy bay",
                 "Chuyên gia chọn phương án: " + chosenOption.getFlightDetails() + ". Phiếu đặt vé máy bay đã gửi tự động đến Công ty Du lịch.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profile.getId()
         );
 
         return chosenOption;
@@ -474,7 +508,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Cập nhật vé máy bay thành công",
                 "Đã lưu mã vé máy bay [" + finalTicketCode + "] và gửi thông tin lịch trình chính thức cho Chuyên gia.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -522,7 +558,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đồng bộ & Đặt vé API thành công",
                 "Đã tự động gọi API đặt vé máy bay thành công. Mã vé xuất: [" + generatedCode + "] đã gửi tự động tới email Chuyên gia.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -543,7 +581,9 @@ public class SeminarProfileService {
                 notificationService.broadcastNotification(
                         "CẢNH BÁO: Còn 14 ngày trước hội thảo",
                         "Hồ sơ " + p.getId() + " chỉ còn đúng 14 ngày trước ngày tổ chức! Vui lòng chuẩn bị tài liệu gấp.",
-                        "ALERT"
+                        "ALERT",
+                        "Role_Admin_Logistics",
+                        p.getId()
                 );
             }
         }
@@ -586,7 +626,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã kết xuất Phiếu vận chuyển tài liệu",
                 "Đã tính định mức xuất bản phẩm (Sách: " + books + ", Tờ rơi: " + brochures + ", Thẻ tên: " + nametags + ") và gửi file PDF tự động tới BP Xử lý tài liệu.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Doc_Processor",
+                profileId
         );
 
         Map<String, Object> result = new HashMap<>();
@@ -609,7 +651,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Tài liệu đã chuẩn bị xong",
                 "Bộ phận Xử lý tài liệu xác nhận đã đóng gói và chuẩn bị xong toàn bộ ấn phẩm cho hồ sơ " + profileId + ".",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -626,7 +670,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Khách sạn đã nhận tài liệu",
                 "Khách sạn " + sv.getVenue().getName() + " xác nhận đã nhận bàn giao đủ ấn phẩm tài liệu cho hồ sơ " + profile.getId() + ".",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profile.getId()
         );
 
         return saved;
@@ -654,13 +700,17 @@ public class SeminarProfileService {
             notificationService.broadcastNotification(
                     "HOÀN TẤT QUY TRÌNH HẬU CẦN",
                     "Hồ sơ " + profileId + " đã hoàn tất và sẵn sàng tổ chức thành công!",
-                    "SUCCESS"
+                    "SUCCESS",
+                    "Role_Admin_Logistics",
+                    profileId
                 );
         } else {
             notificationService.broadcastNotification(
                     "Xác nhận bàn giao tài liệu",
                     "Tài liệu đã được gửi nhưng Khách sạn chưa xác nhận đã nhận hàng.",
-                    "ALERT"
+                    "ALERT",
+                    "Role_Admin_Logistics",
+                    profileId
             );
         }
 
