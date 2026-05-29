@@ -1,12 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, List, Bell, Users, MapPin, Calendar, FileText, Plane, ShieldCheck, 
-  Send, X, Edit2, AlertTriangle, CheckCircle, Search, FileUp, Download, Eye, Check
+  Send, X, Edit2, AlertTriangle, CheckCircle, Search, FileUp, Download, Eye, Check,
+  LogOut, LockKeyhole, ClipboardList
 } from 'lucide-react';
+
+const ROLE_META = {
+  Role_Reservation: { label: 'BP Đặt chỗ', badge: 'badge-new', panel: 'Tiếp nhận & Khởi tạo hồ sơ' },
+  Role_Admin_Logistics: { label: 'Điều phối viên', badge: 'badge-logistics', panel: 'Điều phối hậu cần' },
+  Role_Doc_Processor: { label: 'BP Xử lý tài liệu', badge: 'badge-success', panel: 'Xử lý & chuẩn bị tài liệu' }
+};
+
+const DEMO_USERS = [
+  { username: 'reservation', password: '123456', name: 'Nhân viên đặt chỗ', role: 'Role_Reservation' },
+  { username: 'admin', password: '123456', name: 'Điều phối viên hậu cần', role: 'Role_Admin_Logistics' },
+  { username: 'document', password: '123456', name: 'Nhân viên tài liệu', role: 'Role_Doc_Processor' }
+];
+
+const ROLE_NAV_ITEMS = [
+  { role: 'Role_Reservation', label: 'BP Đặt chỗ Panel', icon: Plus },
+  { role: 'Role_Admin_Logistics', label: 'Điều phối viên Panel', icon: List },
+  { role: 'Role_Doc_Processor', label: 'BP Xử lý tài liệu Panel', icon: FileText }
+];
+
+const getStoredUser = () => {
+  try {
+    const raw = localStorage.getItem('seminarHubUser');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+};
 
 export default function App() {
   // Global States
-  const [currentRole, setCurrentRole] = useState('Role_Admin_Logistics'); // Role_Reservation or Role_Admin_Logistics
+  const [currentUser, setCurrentUser] = useState(getStoredUser);
+  const [currentRole, setCurrentRole] = useState(() => getStoredUser()?.role || null);
+  const [loginForm, setLoginForm] = useState({ username: 'admin', password: '123456' });
+  const [loginError, setLoginError] = useState('');
   const [profiles, setProfiles] = useState([]);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const selectedProfileRef = useRef(null);
@@ -14,6 +45,7 @@ export default function App() {
     selectedProfileRef.current = selectedProfile;
   }, [selectedProfile]);
   const [notifications, setNotifications] = useState([]);
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [editMode, setEditMode] = useState(null); // id of profile being edited by BP Dat cho
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,6 +86,7 @@ export default function App() {
   const [expertConfirmedDate, setExpertConfirmedDate] = useState('');
   const [expertRejectReason, setExpertRejectReason] = useState('');
   const [salesRejectReason, setSalesRejectReason] = useState('');
+  const [choosingFlightOptionId, setChoosingFlightOptionId] = useState(null);
 
   // Fetch initial profile list
   const fetchProfiles = async () => {
@@ -78,14 +111,22 @@ export default function App() {
   };
 
   const fetchNotifications = async () => {
+    if (!currentRole) return;
     try {
-      const res = await fetch('/api/notifications');
+      const res = await fetch('/api/notifications', {
+        headers: { 'X-Role': currentRole }
+      });
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.map(n => ({
+          id: n.id,
           title: n.title,
           message: n.message,
           type: n.type,
+          targetRole: n.targetRole || 'ALL',
+          relatedProfileId: n.relatedProfileId,
+          taskStatus: n.taskStatus || 'OPEN',
+          readAt: n.readAt,
           timestamp: n.createdAt
         })));
       }
@@ -133,7 +174,17 @@ export default function App() {
 
   // Setup Server-Sent Events (SSE) for Real-time warnings/alerts
   useEffect(() => {
-    const eventSource = new EventSource('/api/notifications/subscribe');
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      setPortalToken(token);
+      loadPortalData(token);
+      return;
+    }
+
+    if (!currentRole) return;
+
+    const eventSource = new EventSource(`/api/notifications/subscribe?role=${encodeURIComponent(currentRole)}`);
     
     eventSource.addEventListener('INIT', (e) => {
       console.log("SSE Stream: ", e.data);
@@ -141,7 +192,7 @@ export default function App() {
 
     eventSource.addEventListener('NOTIFICATION', (e) => {
       const notif = JSON.parse(e.data);
-      setNotifications(prev => [notif, ...prev]);
+      setNotifications(prev => [notif, ...prev.filter(item => item.id !== notif.id)]);
       
       // Auto reload lists
       fetchProfiles();
@@ -152,28 +203,15 @@ export default function App() {
       if (token) {
         loadPortalData(token);
       }
-      
-      // Remove toast after 6 seconds
-      setTimeout(() => {
-        setNotifications(prev => prev.filter(n => n.timestamp !== notif.timestamp));
-      }, 6000);
     });
 
-    // Parse URL token to see if loading external portal
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    if (token) {
-      setPortalToken(token);
-      loadPortalData(token);
-    } else {
-      fetchProfiles();
-    }
+    fetchProfiles();
     fetchNotifications();
 
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [currentRole]);
 
   // Periodic polling for token-based external portals to ensure seamless auto-refresh
   useEffect(() => {
@@ -303,10 +341,16 @@ export default function App() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/seminars/${id}/invite`, { method: 'POST' });
+      const res = await fetch(`/api/seminars/${id}/invite`, {
+        method: 'POST',
+        headers: { 'X-Role': currentRole }
+      });
       if (res.ok) {
         alert("Đã gửi đường link Token mã hóa qua email cho Chuyên gia!");
         fetchProfiles();
+      } else {
+        const err = await res.text();
+        alert(err);
       }
     } catch (e) {
       alert(e);
@@ -538,6 +582,7 @@ export default function App() {
   const handleExpertChooseFlight = async (optionId) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    setChoosingFlightOptionId(optionId);
     try {
       const res = await fetch(`/api/external/expert/choose-flight?token=${portalToken}&optionId=${optionId}`, {
         method: 'POST'
@@ -550,6 +595,7 @@ export default function App() {
       alert(e);
     } finally {
       setIsSubmitting(false);
+      setChoosingFlightOptionId(null);
     }
   };
 
@@ -676,7 +722,10 @@ export default function App() {
   // Trigger manual 14 day warning countdown check (demo)
   const handleManualCountdown = async () => {
     try {
-      const res = await fetch('/api/seminars/check-countdown', { method: 'POST' });
+      const res = await fetch('/api/seminars/check-countdown', {
+        method: 'POST',
+        headers: { 'X-Role': currentRole }
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.length > 0) {
@@ -685,9 +734,75 @@ export default function App() {
           alert("Không có hồ sơ nào có ngày tổ chức đúng hạn 14 ngày đếm ngược.");
         }
         fetchProfiles();
+      } else {
+        const err = await res.text();
+        alert(err);
       }
     } catch (e) {
       alert(e);
+    }
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const user = DEMO_USERS.find(item =>
+      item.username === loginForm.username.trim() && item.password === loginForm.password
+    );
+    if (!user) {
+      setLoginError('Sai tài khoản hoặc mật khẩu demo.');
+      return;
+    }
+    const sessionUser = { username: user.username, name: user.name, role: user.role };
+    localStorage.setItem('seminarHubUser', JSON.stringify(sessionUser));
+    setCurrentUser(sessionUser);
+    setCurrentRole(sessionUser.role);
+    setSelectedProfile(null);
+    setEditMode(null);
+    setLoginError('');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('seminarHubUser');
+    setCurrentUser(null);
+    setCurrentRole(null);
+    setSelectedProfile(null);
+    setNotifications([]);
+    setIsNotificationPanelOpen(false);
+    setProfiles([]);
+    setEditMode(null);
+  };
+
+  const updateNotificationState = (id, patch) => {
+    setNotifications(prev => prev.map(item => item.id === id ? { ...item, ...patch } : item));
+  };
+
+  const handleReadNotification = async (id) => {
+    try {
+      const res = await fetch(`/api/notifications/${id}/read`, {
+        method: 'POST',
+        headers: { 'X-Role': currentRole }
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        updateNotificationState(id, { readAt: updated.readAt });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDoneNotification = async (id) => {
+    try {
+      const res = await fetch(`/api/notifications/${id}/done`, {
+        method: 'POST',
+        headers: { 'X-Role': currentRole }
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        updateNotificationState(id, { readAt: updated.readAt, taskStatus: updated.taskStatus });
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -815,6 +930,7 @@ export default function App() {
                     {p.travelOptions.map(opt => {
                       const isSelected = opt.status === 'SELECTED';
                       const isAnySelected = p.travelOptions.some(o => o.status === 'SELECTED');
+                      const isChoosingThisOption = choosingFlightOptionId === opt.id;
                       return (
                         <div key={opt.id} className="glass-panel" style={{ 
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
@@ -826,9 +942,11 @@ export default function App() {
                             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Chi phí ước tính: {opt.estimatedCost} VND</span>
                           </div>
                           {!isAnySelected ? (
-                            <button className="btn btn-primary" disabled={isSubmitting} onClick={() => handleExpertChooseFlight(opt.id)}>{isSubmitting ? "Đang chọn..." : "Chọn Phương án này"}</button>
+                            <button className="btn btn-primary" disabled={isSubmitting} onClick={() => handleExpertChooseFlight(opt.id)}>
+                              {isChoosingThisOption ? "Đang chọn..." : "Chọn Phương án này"}
+                            </button>
                           ) : (
-                            <span className="status-badge badge-success">{opt.status}</span>
+                            <span className={`status-badge ${isSelected ? 'badge-success' : 'badge-muted'}`}>{isSelected ? 'Đã chọn' : 'Không chọn'}</span>
                           )}
                         </div>
                       );
@@ -1054,65 +1172,206 @@ export default function App() {
     }
   }
 
+  if (!currentUser) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '24px' }}>
+        <form onSubmit={handleLogin} className="glass-panel" style={{ width: '100%', maxWidth: '420px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '22px' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '8px', background: 'var(--accent-gradient)', display: 'grid', placeItems: 'center' }}>
+              <LockKeyhole size={22} />
+            </div>
+            <div>
+              <h1 className="text-gradient" style={{ fontSize: '24px', lineHeight: 1.1 }}>SEMINAR HUB</h1>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '4px' }}>Đăng nhập để vào đúng phân hệ được phân quyền</p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Tài khoản</label>
+            <input
+              className="form-input"
+              value={loginForm.username}
+              onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
+              autoComplete="username"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Mật khẩu</label>
+            <input
+              type="password"
+              className="form-input"
+              value={loginForm.password}
+              onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
+              autoComplete="current-password"
+            />
+          </div>
+
+          {loginError && (
+            <div style={{ color: 'var(--danger-color)', fontSize: '13px', marginBottom: '16px' }}>{loginError}</div>
+          )}
+
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: '18px' }}>
+            <ShieldCheck size={16} /> Đăng nhập
+          </button>
+
+          <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '14px' }}>
+            <h5 style={{ color: 'var(--text-secondary)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '10px' }}>Tài khoản demo</h5>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {DEMO_USERS.map(user => (
+                <button
+                  key={user.username}
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ justifyContent: 'space-between', width: '100%', fontSize: '12px', padding: '8px 10px' }}
+                  onClick={() => setLoginForm({ username: user.username, password: user.password })}
+                >
+                  <span>{user.username} / {user.password}</span>
+                  <span className={`status-badge ${ROLE_META[user.role].badge}`}>{ROLE_META[user.role].label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
   // RENDER INTERNAL HUB DASHBOARD
+  const openTasks = notifications.filter(n => n.taskStatus !== 'DONE');
+  const unreadTaskCount = openTasks.filter(n => !n.readAt).length;
+  const notificationCountLabel = unreadTaskCount > 0 ? unreadTaskCount : openTasks.length;
+  const formatNotificationTime = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="dashboard-grid">
-      {/* 1. Real-time Toast Push Warnings Panel */}
-      <div style={{ 
-        position: 'fixed', top: '20px', right: '20px', zIndex: 10000, 
-        display: 'flex', flexDirection: 'column', gap: '10px', width: '350px' 
-      }}>
-        {notifications.map((n, i) => (
-          <div key={i} className={`glass-panel slide-in ${n.type === 'REJECT' || n.title.includes('CẢNH BÁO') ? 'pulse-alert-red' : ''}`} style={{ 
-            background: n.type === 'REJECT' || n.title.includes('CẢNH BÁO') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(17, 24, 39, 0.95)',
-            borderLeft: `4px solid ${n.type === 'SUCCESS' ? 'var(--success-color)' : n.type === 'REJECT' ? 'var(--danger-color)' : 'var(--accent-primary)'}`
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-              <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                {n.type === 'SUCCESS' ? <CheckCircle size={16} color="var(--success-color)" /> : <AlertTriangle size={16} color={n.type === 'REJECT' ? 'var(--danger-color)' : 'var(--warning-color)'} />}
-                {n.title}
-              </h4>
-              <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => setNotifications(prev => prev.filter(item => item.timestamp !== n.timestamp))}>
-                <X size={14} />
+      {isNotificationPanelOpen && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 10000,
+          width: 'min(430px, calc(100vw - 40px))',
+          maxHeight: 'calc(100vh - 40px)'
+        }}>
+          <div className="glass-panel slide-in" style={{ background: 'rgba(17, 24, 39, 0.98)', padding: '18px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+              <div>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px' }}>
+                  <Bell size={18} /> Thông báo
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
+                  {ROLE_META[currentRole]?.label} - {openTasks.length} task mở
+                </p>
+              </div>
+              <button className="btn btn-secondary" style={{ width: '36px', height: '36px', padding: 0 }} onClick={() => setIsNotificationPanelOpen(false)}>
+                <X size={16} />
               </button>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: '1.4' }}>{n.message}</p>
+
+            {notifications.length === 0 ? (
+              <div style={{ padding: '34px 12px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <ClipboardList size={32} style={{ marginBottom: '10px', opacity: 0.65 }} />
+                <div>Chưa có thông báo nào cho vai trò này.</div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {notifications.map((n, i) => {
+                  const isAlert = n.type === 'REJECT' || n.title.includes('CẢNH BÁO');
+                  const isDone = n.taskStatus === 'DONE';
+                  return (
+                    <div key={n.id || i} style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: `1px solid ${isAlert ? 'rgba(239, 68, 68, 0.35)' : 'var(--glass-border)'}`,
+                      background: isDone ? 'rgba(255,255,255,0.02)' : isAlert ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255,255,255,0.04)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'flex-start' }}>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', lineHeight: 1.35 }}>
+                          {n.type === 'SUCCESS' ? <CheckCircle size={16} color="var(--success-color)" /> : <AlertTriangle size={16} color={isAlert ? 'var(--danger-color)' : 'var(--warning-color)'} />}
+                          {n.title}
+                        </h4>
+                        <span className={`status-badge ${isDone ? 'badge-success' : n.readAt ? 'badge-muted' : 'badge-new'}`}>
+                          {isDone ? 'Xong' : n.readAt ? 'Đã đọc' : 'Mới'}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '7px', lineHeight: '1.45' }}>{n.message}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', color: 'var(--text-muted)', fontSize: '11px', marginTop: '8px' }}>
+                        <span>{n.relatedProfileId || 'Hệ thống'}</span>
+                        <span>{formatNotificationTime(n.timestamp)}</span>
+                      </div>
+                      {!isDone && (
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                          {!n.readAt && (
+                            <button className="btn btn-secondary" style={{ flex: 1, padding: '7px', fontSize: '12px' }} onClick={() => handleReadNotification(n.id)}>
+                              <Eye size={14} /> Đã đọc
+                            </button>
+                          )}
+                          <button className="btn btn-success" style={{ flex: 1, padding: '7px', fontSize: '12px' }} onClick={() => handleDoneNotification(n.id)}>
+                            <Check size={14} /> Hoàn tất
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* 2. Unified Sidebar */}
-      <aside className="glass-panel" style={{ borderRadius: '0', borderRight: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', justifySpace: 'between', height: '100vh' }}>
+      <aside className="glass-panel" style={{ borderRadius: '0', borderRight: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100vh' }}>
         <div>
           <h2 className="text-gradient" style={{ fontSize: '20px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '30px' }}>
             <ShieldCheck size={24} /> SEMINAR HUB
           </h2>
 
-          {/* Role Switching toggle panel */}
-          <div className="form-group" style={{ marginBottom: '25px' }}>
-            <label className="form-label">Chọn vai trò đang dùng:</label>
-            <select className="form-select" value={currentRole} onChange={e => {
-              setCurrentRole(e.target.value);
-              setSelectedProfile(null);
-              setEditMode(null);
-            }}>
-              <option value="Role_Reservation">BP Đặt Chỗ (Reservation)</option>
-              <option value="Role_Admin_Logistics">Điều Phối Viên (Admin)</option>
-              <option value="Role_Doc_Processor">BP Xử lý tài liệu (Doc Processor)</option>
-            </select>
+          <div style={{ marginBottom: '25px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Đang đăng nhập</div>
+            <div style={{ fontWeight: '800', marginBottom: '8px' }}>{currentUser.name}</div>
+            <span className={`status-badge ${ROLE_META[currentRole]?.badge || 'badge-muted'}`}>{ROLE_META[currentRole]?.label}</span>
+            <button className="btn btn-secondary" style={{ width: '100%', marginTop: '12px', padding: '8px 10px', fontSize: '12px' }} onClick={handleLogout}>
+              <LogOut size={14} /> Đăng xuất
+            </button>
           </div>
 
           <hr style={{ border: 'none', borderTop: '1px solid var(--glass-border)', marginBottom: '20px' }} />
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button className={`btn ${currentRole === 'Role_Reservation' ? 'btn-primary' : 'btn-secondary'}`} style={{ justifyContent: 'start', width: '100%' }} onClick={() => { setCurrentRole('Role_Reservation'); setSelectedProfile(null); setEditMode(null); }}>
-              <Plus size={16} /> BP Đặt chỗ Panel
-            </button>
-            <button className={`btn ${currentRole === 'Role_Admin_Logistics' ? 'btn-primary' : 'btn-secondary'}`} style={{ justifyContent: 'start', width: '100%' }} onClick={() => { setCurrentRole('Role_Admin_Logistics'); setSelectedProfile(null); setEditMode(null); }}>
-              <List size={16} /> Điều phối viên Panel
-            </button>
-            <button className={`btn ${currentRole === 'Role_Doc_Processor' ? 'btn-primary' : 'btn-secondary'}`} style={{ justifyContent: 'start', width: '100%' }} onClick={() => { setCurrentRole('Role_Doc_Processor'); setSelectedProfile(null); setEditMode(null); }}>
-              <FileText size={16} /> BP Xử lý tài liệu Panel
+            {ROLE_NAV_ITEMS
+              .filter(item => item.role === currentRole)
+              .map(item => {
+                const Icon = item.icon;
+                return (
+                  <button key={item.role} className="btn btn-primary" style={{ justifyContent: 'start', width: '100%' }}>
+                    <Icon size={16} /> {item.label}
+                  </button>
+                );
+              })}
+            <button
+              className={`btn ${isNotificationPanelOpen ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ justifyContent: 'space-between', width: '100%', marginTop: '8px' }}
+              onClick={() => setIsNotificationPanelOpen(prev => !prev)}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <Bell size={16} /> Thông báo
+              </span>
+              {notificationCountLabel > 0 && (
+                <span className={`status-badge ${unreadTaskCount > 0 ? 'badge-new' : 'badge-muted'}`}>
+                  {notificationCountLabel}
+                </span>
+              )}
             </button>
           </nav>
         </div>
@@ -1123,6 +1382,8 @@ export default function App() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '13px' }}>
             <div>Tổng số: <b>{profiles.length}</b></div>
             <div>Sẵn sàng: <b>{profiles.filter(p => p.status === 'Sẵn sàng tổ chức').length}</b></div>
+            <div>Task mở: <b>{openTasks.length}</b></div>
+            <div>Chưa đọc: <b>{unreadTaskCount}</b></div>
           </div>
           {currentRole === 'Role_Admin_Logistics' && (
             <button className="btn btn-secondary" style={{ width: '100%', fontSize: '11px', padding: '6px', marginTop: '12px' }} onClick={handleManualCountdown}>
@@ -1229,6 +1490,7 @@ export default function App() {
                     <tbody>
                       {profiles.map(p => {
                         const canEdit = p.status === 'Bị từ chối / Tạm dừng' || p.status === 'Mới tạo / Chờ xử lý';
+                        const canCancel = p.status === 'Bị từ chối / Tạm dừng' || (p.status === 'Mới tạo / Chờ xử lý' && !p.expertToken);
                         return (
                           <tr key={p.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
                             <td style={{ padding: '12px', fontWeight: '800' }}>{p.id}</td>
@@ -1277,8 +1539,8 @@ export default function App() {
                                 <button 
                                   className="btn btn-danger" 
                                   style={{ padding: '6px', minWidth: '32px' }}
-                                  disabled={!canEdit}
-                                  title="Hủy hồ sơ"
+                                  disabled={!canCancel}
+                                  title={canCancel ? "Hủy hồ sơ" : "Không thể hủy sau khi Điều phối viên đã gửi lời mời hoặc hồ sơ đang xử lý"}
                                   onClick={() => handleCancelProfile(p.id)}
                                 >
                                   <X size={14} />
@@ -1413,7 +1675,11 @@ export default function App() {
                           {selectedProfile.expertNotes && (
                             <div style={{ color: 'var(--danger-color)' }}>Phản hồi Chuyên gia từ chối: <b>{selectedProfile.expertNotes}</b></div>
                           )}
-                          {!selectedProfile.expertToken ? (
+                          {selectedProfile.status === 'Đã hủy' ? (
+                            <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.08)', borderLeft: '3px solid var(--danger-color)', borderRadius: '4px', color: 'var(--danger-color)' }}>
+                              Hồ sơ đã hủy. Không thể gửi lời mời hoặc thông báo cho chuyên gia.
+                            </div>
+                          ) : !selectedProfile.expertToken ? (
                             <button className="btn btn-primary" onClick={() => handleSendExpertInvite(selectedProfile.id)}>
                               <Send size={14} /> Gửi Email Lời mời tự động
                             </button>
@@ -1511,13 +1777,16 @@ export default function App() {
                                     <div>
                                       <b>{sv.venueName}</b> ({sv.venueCity})
                                       {sv.status === 'PENDING' && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
                                           <span style={{ color: 'var(--warning-color)' }}>Link đàm phán của Hotel Sales:</span>
-                                          <input type="text" className="form-input" style={{ padding: '2px 5px', fontSize: '10px', width: '150px' }} readOnly value={`${window.location.origin}/?token=${sv.salesToken}`} />
+                                          <input type="text" className="form-input" style={{ padding: '4px 8px', fontSize: '11px', width: '260px' }} readOnly value={`${window.location.origin}/?token=${sv.salesToken}`} />
                                           <button type="button" className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }} onClick={() => {
                                             navigator.clipboard.writeText(`${window.location.origin}/?token=${sv.salesToken}`);
                                             alert("Đã copy link hotel portal!");
                                           }}>Copy</button>
+                                          <button type="button" className="btn btn-primary" style={{ padding: '3px 8px', fontSize: '10px' }} onClick={() => window.open(`${window.location.origin}/?token=${sv.salesToken}`, '_blank', 'noopener,noreferrer')}>
+                                            Mở portal
+                                          </button>
                                         </div>
                                       )}
                                     </div>
@@ -1565,9 +1834,34 @@ export default function App() {
                           {/* Negotiate Contract & Upload administrative revisions */}
                           {(() => {
                             if (selectedContracts.length === 0) {
+                              const pendingSalesVenue = selectedVenues.find(sv => sv.status === 'PENDING' && sv.salesToken);
+                              const hasVenueRequest = selectedVenues.length > 0;
+                              const salesPortalUrl = pendingSalesVenue ? `${window.location.origin}/?token=${pendingSalesVenue.salesToken}` : '';
+
                               return (
                                 <div style={{ padding: '15px', background: 'rgba(245, 158, 11, 0.05)', borderLeft: '3px solid var(--warning-color)', borderRadius: '6px', fontSize: '12px', color: 'var(--warning-color)' }}>
-                                  <span style={{ fontWeight: 'bold' }}>⏳ Chờ đợi Hợp đồng:</span> Đang chờ Khách sạn chấp nhận đặt phòng và tải lên bản dự thảo hợp đồng đầu tiên (v1)...
+                                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                                    {pendingSalesVenue ? '⏳ Chờ đợi Hợp đồng:' : hasVenueRequest ? '⏳ Đang xử lý yêu cầu khách sạn:' : 'Chưa gửi yêu cầu đặt phòng:'}
+                                  </div>
+                                  {pendingSalesVenue ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                      <div>Đang chờ <b>{pendingSalesVenue.venueName}</b> chấp nhận đặt phòng và tải lên bản dự thảo hợp đồng đầu tiên (v1).</div>
+                                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                        <input type="text" className="form-input" style={{ maxWidth: '420px', padding: '8px 10px', fontSize: '12px', color: 'white' }} readOnly value={salesPortalUrl} />
+                                        <button type="button" className="btn btn-secondary" style={{ padding: '7px 12px', fontSize: '12px' }} onClick={() => {
+                                          navigator.clipboard.writeText(salesPortalUrl);
+                                          alert("Đã copy link hotel portal!");
+                                        }}>Copy link</button>
+                                        <button type="button" className="btn btn-primary" style={{ padding: '7px 12px', fontSize: '12px' }} onClick={() => window.open(salesPortalUrl, '_blank', 'noopener,noreferrer')}>
+                                          Mở portal khách sạn
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : hasVenueRequest ? (
+                                    <div>Không còn yêu cầu khách sạn nào đang chờ phản hồi. Kiểm tra trạng thái danh sách yêu cầu đặt phòng phía trên.</div>
+                                  ) : (
+                                    <div>Hãy bấm <b>Tìm gợi ý</b>, chọn một khách sạn bằng nút <b>Chọn Đặt</b>, sau đó hệ thống mới tạo link portal để khách sạn chấp nhận và tải hợp đồng.</div>
+                                  )}
                                 </div>
                               );
                             }
@@ -1821,11 +2115,17 @@ export default function App() {
                             if (isSubmitting) return;
                             setIsSubmitting(true);
                             try {
-                              const res = await fetch(`/api/seminars/${selectedProfile.id}/doc-ready`, { method: 'POST' });
+                              const res = await fetch(`/api/seminars/${selectedProfile.id}/doc-ready`, {
+                                method: 'POST',
+                                headers: { 'X-Role': currentRole }
+                              });
                               if (res.ok) {
                                 alert("Đã xác nhận chuẩn bị xong toàn bộ tài liệu! Hệ thống đã gửi thông báo cho Ban điều phối.");
                                 fetchProfiles();
                                 setSelectedProfile(null);
+                              } else {
+                                const err = await res.text();
+                                alert(err);
                               }
                             } catch (e) {
                               alert(e);
