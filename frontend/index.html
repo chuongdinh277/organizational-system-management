@@ -1,37 +1,85 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Quản lý Hậu cần - Training Inc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý vận chuyển tài liệu</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container mt-4">
-        <h2 class="text-primary">Dashboard Điều phối viên</h2>
-        <hr>
-        
-        <div class="card">
-            <div class="card-header bg-dark text-white">Danh sách Hội thảo sắp tới</div>
-            <div class="card-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Mã HT</th>
-                            <th>Tên/Loại Hội thảo</th>
-                            <th>Ngày tổ chức</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hoi-thao-list">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+  <main class="page">
+    <section class="toolbar">
+      <div>
+        <h1>Vận chuyển tài liệu ấn phẩm</h1>
+        <p>Cảnh báo 14 ngày, tính số lượng ấn phẩm, tạo phiếu vận chuyển và đóng quy trình.</p>
+      </div>
+      <button id="refreshButton" type="button">Tải lại</button>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
+    <section class="layout">
+      <form id="shipmentForm" class="panel">
+        <h2>Tạo hồ sơ</h2>
+        <label>
+          Loại hội thảo
+          <input name="seminarType" value="Hội thảo Marketing" required>
+        </label>
+        <div class="field-grid">
+          <label>
+            Ngày tổ chức
+            <input name="seminarDate" type="date" value="2026-06-10" required>
+          </label>
+          <label>
+            Thành phố
+            <input name="seminarCity" value="Hà Nội" required>
+          </label>
+        </div>
+        <div class="field-grid">
+          <label>
+            Số người dự kiến
+            <input name="anticipatedRegistrantCount" type="number" min="1" value="35" required>
+          </label>
+          <label>
+            Số người thực tế
+            <input name="registeredParticipantCount" type="number" min="1" value="30" required>
+          </label>
+        </div>
+        <label>
+          Địa điểm
+          <input name="venueName" value="Training Hotel" required>
+        </label>
+        <label>
+          Địa chỉ giao hàng
+          <input name="venueAddress" value="123 Nguyễn Trãi, Hà Nội" required>
+        </label>
+        <button type="submit">Tạo hồ sơ mẫu</button>
+      </form>
+
+      <section class="panel">
+        <h2>Danh sách hồ sơ</h2>
+        <div id="message" class="message" hidden></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mã hồ sơ</th>
+                <th>Hội thảo</th>
+                <th>Ngày</th>
+                <th>Cảnh báo</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="shipmentRows">
+              <tr>
+                <td colspan="6">Đang tải dữ liệu...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/js/app.js" charset="UTF-8"></script>
 </body>
 </html>
