@@ -8,11 +8,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.core.annotation.Order;
 
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@Order(1)
 public class SecurityConfig {
 
     @Bean
@@ -21,9 +23,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/external/**").permitAll()
-                .requestMatchers("/api/notifications/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
                 .anyRequest().permitAll()
             );
         return http.build();
@@ -32,7 +31,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:80", "http://localhost", "http://127.0.0.1:5173"));
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:5173", 
+            "http://127.0.0.1:5173",
+            "http://localhost:5174", 
+            "http://localhost:80", 
+            "http://localhost"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Role"));
         configuration.setAllowCredentials(true);

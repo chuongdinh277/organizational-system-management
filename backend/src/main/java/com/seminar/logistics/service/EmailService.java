@@ -20,6 +20,7 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
+    // Đã chuyển fallback default về lại 5173
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
@@ -40,7 +41,7 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-            helper.setFrom("seminar-logistics@company.com");
+            helper.setFrom("dinhvanquocchuong277@gmail.com");
 
             if (attachment != null && fileName != null) {
                 ByteArrayDataSource dataSource = new ByteArrayDataSource(attachment, "application/pdf");
@@ -85,7 +86,7 @@ public class EmailService {
                 profile.getId(), profile.getSeminarType(), profile.getExpectedDate(), profile.getCity(),
                 profile.getExpert().getName(), profile.getExpectedAttendees()
         );
-        sendEmail("coordinator@company.com", "[Cảnh báo] Khởi tạo hồ sơ " + profile.getId(), htmlContent);
+        sendEmail("dinhvanquocchuong277@gmail.com", "[Cảnh báo] Khởi tạo hồ sơ " + profile.getId(), htmlContent);
     }
 
     public void sendHotelBookingRequest(SeminarProfile profile, SeminarVenue sv, String roomInfoHtml) {
