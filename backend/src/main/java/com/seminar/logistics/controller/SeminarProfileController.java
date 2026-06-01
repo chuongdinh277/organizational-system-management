@@ -169,19 +169,24 @@ public class SeminarProfileController {
         }
     }
 
+    // F3.3 - ĐÃ SỬA CHI TIẾT: Tiếp nhận thêm các thông số kỹ thuật điền tay tự do gửi lên từ Modal đối sánh
     // F3.3 - Send room booking request (Admin Logistics only)
     @PostMapping("/{id}/book")
     public ResponseEntity<?> bookVenue(
             @RequestHeader(value = "X-Role", defaultValue = "Role_Admin_Logistics") String role,
             @PathVariable String id,
-            @RequestParam Long venueId) {
+            @RequestParam Long venueId,
+            @RequestParam(required = false) String minRoomSize,
+            @RequestParam(required = false) String setupStyle,
+            @RequestParam(required = false) String avEquipment) {
         
         if (!"Role_Admin_Logistics".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Chỉ Điều phối viên (Admin) mới có quyền đặt phòng!");
         }
 
         try {
-            SeminarVenue sv = profileService.requestVenueBooking(id, venueId);
+            // Đã truyền bổ sung 3 tham số kỹ thuật điền tay xuống tầng Service xử lý
+            SeminarVenue sv = profileService.requestVenueBooking(id, venueId, minRoomSize, setupStyle, avEquipment);
             return ResponseEntity.ok(sv);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

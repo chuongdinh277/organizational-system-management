@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,7 @@ public class ExternalController {
     }
 
     // Hotel Sales Portal - Get Profile
+    // Hotel Sales Portal - Get Profile
     @GetMapping("/sales")
     public ResponseEntity<?> getSalesProfile(@RequestParam String token) {
         return seminarVenueRepository.findBySalesToken(token)
@@ -127,12 +129,37 @@ public class ExternalController {
                     data.put("documentShipped", profile.getDocumentShipped());
                     data.put("documentReceived", profile.getDocumentReceived());
 
-                    // Estimations
+                    // Nạp dự toán kĩ thuật phòng họp tự động làm nền tảng ban đầu
                     Map<String, String> estimate = profileService.getResourceEstimation(profile.getId());
-                    data.put("estimation", estimate);
 
-                    // Contract negotiation versions
+                    // ĐỌC VÀ GHI ĐÈ DỮ LIỆU ĐIỀN TAY BAN ĐẦU CỦA ADMIN TỪ CONTRACT_VERSIONS
                     List<ContractVersion> versions = contractVersionRepository.findBySeminarProfileIdOrderByVersionDesc(profile.getId());
+                    if (versions != null && !versions.isEmpty()) {
+                        // Lấy bản ghi đầu tiên được tạo (v1) nằm ở cuối danh sách sắp xếp giảm dần
+                        ContractVersion rootContract = versions.get(versions.size() - 1);
+                        if ("ADMIN".equals(rootContract.getUploadedBy()) && rootContract.getNotes() != null) {
+                            String notes = rootContract.getNotes();
+                            try {
+                                if (notes.contains("Diện tích:") && notes.contains("| Setup:")) {
+                                    String size = notes.substring(notes.indexOf("Diện tích:") + 10, notes.indexOf("| Setup:")).trim().replace("m2", "");
+                                    String style = notes.substring(notes.indexOf("| Setup:") + 8).trim();
+                                    
+                                    // Ép đè thông số điền tay lên dữ liệu truyền sang Portal Sales
+                                    estimate.put("minRoomSize", size);
+                                    estimate.put("setupStyle", style);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Lỗi phân tách thông số điền tay: " + e.getMessage());
+                            }
+
+                            if (rootContract.getFileContent() != null) {
+                                String customAvText = new String(rootContract.getFileContent(), java.nio.charset.StandardCharsets.UTF_8);
+                                estimate.put("avEquipment", customAvText);
+                            }
+                        }
+                    }
+                    
+                    data.put("estimation", estimate);
                     data.put("contracts", versions);
 
                     return ResponseEntity.ok(data);
@@ -166,21 +193,22 @@ public class ExternalController {
         }
     }
 
-    // Hotel Sales Portal - Upload revised contract
+    // Hotel Sales Portal - Upload contract revision
     @PostMapping("/sales/contract/revision")
     public ResponseEntity<?> uploadContractRevision(
-            @RequestParam String token,
-            @RequestParam String notes,
-            @RequestParam String uploadedBy,
-            @RequestParam MultipartFile file) {
+            @RequestParam("token") String token,
+            @RequestParam("notes") String notes,
+            @RequestParam("uploadedBy") String uploadedBy,
+            @RequestParam("file") MultipartFile file) {
         try {
             SeminarVenue sv = seminarVenueRepository.findBySalesToken(token)
-                    .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ"));
+                    .orElseThrow(() -> new IllegalArgumentException("Token mã hóa không hợp lệ hoặc đã hết hạn!"));
 
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body("Vui lòng đính kèm file hợp đồng chỉnh sửa");
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("Lỗi: Vui lòng đính kèm tệp hợp đồng chỉnh sửa hợp lệ!");
             }
 
+            // Thực hiện lưu trữ file và nâng version tự động thông qua Service
             ContractVersion cv = profileService.submitContractRevision(
                     sv.getSeminarProfile().getId(),
                     file.getBytes(),
@@ -190,10 +218,11 @@ public class ExternalController {
             );
             return ResponseEntity.ok(cv);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Lỗi hệ thống lưu trữ: " + e.getMessage());
         }
     }
 
+    // Hotel Sales Portal - Confirm delivery
     @PostMapping("/sales/confirm-delivery")
     public ResponseEntity<?> confirmDelivery(@RequestParam String token) {
         try {
@@ -204,7 +233,7 @@ public class ExternalController {
         }
     }
 
-    // Secure Download - Decrypts economic contract on the fly
+    // Contract Download Endpoint
     @GetMapping("/contract/{id}/download")
     public ResponseEntity<byte[]> downloadContract(@PathVariable Long id) {
         ContractVersion cv = contractVersionRepository.findById(id)

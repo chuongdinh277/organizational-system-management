@@ -42,23 +42,29 @@ public class SeminarProfileService {
     @Autowired
     private NotificationService notificationService;
 
-    // F1.1 & F1.2 & F1.3 - Create new Profile
+    // F1.1 - CHỈ DÙNG KHI KHỞI TẠO MỚI HỒ SƠ (Tạo Chuyên gia độc lập hoàn toàn)
     public SeminarProfile createProfile(String seminarType, LocalDate expectedDate, String city,
                                          String expertName, String expertEmail, String expertPhone, String expertPassport,
                                          Integer expectedAttendees) {
 
-        // Find or create Expert (CCCD/Passport automatically encrypted by AesEncryptor converter)
-        Expert expert = expertRepository.findByEmail(expertEmail).orElseGet(() -> {
+        // Kiểm tra xem email chuyên gia đã tồn tại trong hệ thống chưa
+        Optional<Expert> existingExpertOpt = expertRepository.findByEmail(expertEmail);
+        Expert expert;
+
+        if (existingExpertOpt.isPresent()) {
+            // Nếu đã tồn tại, tái sử dụng thực thể Chuyên gia này để tránh lỗi trùng Unique Key khi tạo hội thảo mới
+            expert = existingExpertOpt.get();
+        } else {
+            // Nếu chưa tồn tại, tiến hành tạo mới bản ghi chuyên gia độc lập
             Expert newExpert = Expert.builder()
                     .name(expertName)
                     .email(expertEmail)
                     .phone(expertPhone)
                     .passportNo(expertPassport)
                     .build();
-            return expertRepository.save(newExpert);
-        });
+            expert = expertRepository.save(newExpert);
+        }
 
-        // Generate ID like SEM-2026-0001
         String year = String.valueOf(expectedDate.getYear());
         long count = profileRepository.count() + 1;
         String profileId = String.format("SEM-%s-%04d", year, count);
@@ -79,21 +85,66 @@ public class SeminarProfileService {
 
         SeminarProfile savedProfile = profileRepository.save(profile);
 
-        // F1.3 - Notification & Email
         emailService.sendCoordinatorNotification(savedProfile);
+        
         notificationService.broadcastNotification(
                 "Yêu cầu khởi tạo mới",
                 "Hồ sơ " + profileId + " đã được tạo bởi BP Đặt chỗ và đang chờ tiếp nhận.",
-                "CREATE"
+                "CREATE",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return savedProfile;
+    }
+
+    // F1.2 - CHỈ DÙNG KHI CẬP NHẬT/CHỈNH SỬA HỒ SƠ CŨ (Fix triệt để lỗi expert_id)
+    public SeminarProfile updateProfile(String profileId, String seminarType, LocalDate expectedDate, String city,
+                                         String expertName, String expertEmail, String expertPhone, String expertPassport,
+                                         Integer expectedAttendees) {
+        
+        SeminarProfile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ hội thảo cần cập nhật"));
+
+        // Cập nhật thông tin Chuyên gia liên kết trực tiếp của hồ sơ này
+        Expert expert = profile.getExpert();
+        if (expert == null) {
+            expert = new Expert();
+        }
+        expert.setName(expertName);
+        expert.setEmail(expertEmail);
+        expert.setPhone(expertPhone);
+        expert.setPassportNo(expertPassport);
+        expert = expertRepository.save(expert);
+
+        // Cập nhật các thông số đặc thù của cuộc hội thảo (Ngày tổ chức, thành phố, kiểu hội thảo)
+        profile.setSeminarType(seminarType);
+        profile.setExpectedDate(expectedDate);
+        profile.setCity(city);
+        profile.setExpert(expert);
+        profile.setExpectedAttendees(expectedAttendees);
+
+        SeminarProfile saved = profileRepository.save(profile);
+
+        notificationService.broadcastNotification(
+                "Cập nhật thông tin hồ sơ",
+                "Hồ sơ " + profileId + " đã được bộ phận đặt chỗ điều chỉnh lại thông tin.",
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
+        );
+
+        return saved;
     }
 
     // F2.1 - Send Auto invitation
     public SeminarProfile sendExpertInvitation(String profileId) {
         SeminarProfile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+
+        if ("Đã hủy".equals(profile.getStatus())) {
+            throw new IllegalStateException("Không thể gửi lời mời chuyên gia cho hồ sơ đã hủy.");
+        }
 
         profile.setExpertToken(UUID.randomUUID().toString());
         profile.setExpertTokenExpiry(LocalDateTime.now().plusDays(7));
@@ -104,7 +155,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã gửi lời mời chuyên gia",
                 "Đường link token mời tham gia đã gửi tới email chuyên gia: " + profile.getExpert().getEmail(),
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -120,6 +173,10 @@ public class SeminarProfileService {
         SeminarProfile profile = profileRepository.findByExpertToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ hoặc đã hết hạn"));
 
+        if ("Đã hủy".equals(profile.getStatus())) {
+            throw new IllegalStateException("Hồ sơ đã hủy, chuyên gia không thể xác nhận tham gia.");
+        }
+
         if (profile.getExpertTokenExpiry().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Token đã quá hạn sử dụng");
         }
@@ -134,7 +191,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Chuyên gia ĐỒNG Ý",
                 "Chuyên gia hội thảo " + profile.getId() + " đã đồng ý tham gia. Ngày chốt: " + (confirmedDate != null ? confirmedDate.toString() : profile.getExpectedDate().toString()) + ". Lịch trình: " + desiredSchedule,
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profile.getId()
         );
 
         return saved;
@@ -145,6 +204,10 @@ public class SeminarProfileService {
         SeminarProfile profile = profileRepository.findByExpertToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ hoặc đã hết hạn"));
 
+        if ("Đã hủy".equals(profile.getStatus())) {
+            throw new IllegalStateException("Hồ sơ đã hủy, chuyên gia không thể phản hồi lời mời.");
+        }
+
         profile.setExpertNotes(reason);
         profile.setStatus("Bị từ chối / Tạm dừng");
         SeminarProfile saved = profileRepository.save(profile);
@@ -152,7 +215,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Chuyên gia TỪ CHỐI",
                 "Chuyên gia của hội thảo " + profile.getId() + " từ chối vì lý do: " + reason,
-                "REJECT"
+                "REJECT",
+                "Role_Reservation",
+                profile.getId()
         );
 
         return saved;
@@ -173,7 +238,7 @@ public class SeminarProfileService {
         if (type.contains("chuyên sâu") || type.contains("workshop") || type.contains("thực hành")) {
             multiplier = 2.5;
             setupStyle = "U-Shape (Chữ U)";
-            avEquipment = "1 Máy chiếu, 1 Tivi LCD phụ, Hệ thống âm thanh nổi, 4 Micro không dây, Bộ sạc & ổ cắm cá nhân tại bàn.";
+            avEquipment = "1 Máy chiếu, 1 Tivi LCD phụ, Hệ thống âm thanh nổi, 4 Micro không dây, Bộ sạc & ổ cắm cáhen tại bàn.";
         } else if (type.contains("hội nghị") || type.contains("conference") || type.contains("diễn đàn")) {
             multiplier = 1.5;
             setupStyle = "Theater (Nhà hát)";
@@ -189,7 +254,7 @@ public class SeminarProfileService {
         return estimate;
     }
 
-    // F3.2 - Query hotel list with robust city name normalization
+    // F3.2 - Query hotel list
     public List<Venue> searchVenues(String city, Integer capacity) {
         String queryCity = city != null ? city.trim().toLowerCase() : "";
         if (queryCity.contains("hà nội") || queryCity.contains("ha noi") || queryCity.contains("hn")) {
@@ -204,14 +269,14 @@ public class SeminarProfileService {
         return venueRepository.findByCityContainingIgnoreCaseAndCapacityGreaterThanEqual(queryCity, capacity);
     }
 
-    // F3.3 - Booking Request
-    public SeminarVenue requestVenueBooking(String profileId, Long venueId) {
+    // F3.3 - ĐÃ SỬA CHI TIẾT: Hàm nhận toàn bộ thông số tùy chọn điền tay tự do gửi từ Form Admin điều phối
+    // F3.3 - Booking Request (Hỗ trợ dữ liệu nhập tay linh hoạt từ Admin)
+    public SeminarVenue requestVenueBooking(String profileId, Long venueId, String customMinRoomSize, String customSetupStyle, String customAvEquipment) {
         SeminarProfile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new IllegalArgumentException("Venue not found"));
 
-        // Generate sales token
         SeminarVenue sv = SeminarVenue.builder()
                 .seminarProfile(profile)
                 .venue(venue)
@@ -222,68 +287,82 @@ public class SeminarProfileService {
 
         SeminarVenue savedSv = seminarVenueRepository.save(sv);
 
-        // Get resource info
+        // Lấy phương án dự toán tự động làm phương án dự phòng (fallback)
         Map<String, String> estimate = getResourceEstimation(profileId);
+        
+        // KIỂM TRA ĐIỀU KIỆN: Nếu có điền tay thì lấy điền tay, ngược lại lấy tự động
+        String finalMinRoomSize = (customMinRoomSize != null && !customMinRoomSize.isBlank()) ? customMinRoomSize.trim() : estimate.get("minRoomSize");
+        String finalSetupStyle = (customSetupStyle != null && !customSetupStyle.isBlank()) ? customSetupStyle.trim() : estimate.get("setupStyle");
+        String finalAvEquipment = (customAvEquipment != null && !customAvEquipment.isBlank()) ? customAvEquipment.trim() : estimate.get("avEquipment");
+
+        // Đồng bộ hóa cấu trúc HTML gửi đi trong Gmail
         String roomInfoHtml = String.format(
                 "<ul>" +
                 "<li><b>Kích thước phòng tối thiểu:</b> %s m2</li>" +
                 "<li><b>Kiểu setup bàn ghế:</b> %s</li>" +
                 "<li><b>Thiết bị nghe nhìn:</b> %s</li>" +
                 "</ul>",
-                estimate.get("minRoomSize"), estimate.get("setupStyle"), estimate.get("avEquipment")
+                finalMinRoomSize, finalSetupStyle, finalAvEquipment
         );
 
+        // Tiến hành gửi Mail mẫu bằng dữ liệu thực tế nhập từ Form
         emailService.sendHotelBookingRequest(profile, savedSv, roomInfoHtml);
+
+        // Khởi tạo một bản ghi ContractVersion nháp (v1) lưu trữ trực tiếp thông số điền tay này
+        // Việc này giúp hàm /api/external/sales bốc ngược lại dữ liệu để hiển thị lên bảng Cổng Sales
+        ContractVersion baseContract = ContractVersion.builder()
+                .seminarProfile(profile)
+                .version(1)
+                .fileName("Yeu_Cau_Ky_Thuat_Goc.txt")
+                .fileContent(finalAvEquipment.getBytes(java.nio.charset.StandardCharsets.UTF_8)) // Lưu trữ chuỗi thiết bị nghe nhìn vào blob
+                .notes("Diện tích: " + finalMinRoomSize + "m2 | Setup: " + finalSetupStyle) // Lưu diện tích & sơ đồ vào notes
+                .uploadedBy("ADMIN")
+                .status("DRAFT")
+                .createdAt(LocalDateTime.now())
+                .build();
+        contractVersionRepository.save(baseContract);
 
         notificationService.broadcastNotification(
                 "Đã gửi yêu cầu đặt phòng",
-                "Đã gửi email yêu cầu đặt phòng và form PDF tới Sales Manager của khách sạn " + venue.getName(),
-                "ALERT"
+                "Đã gửi email yêu cầu đặt phòng kèm thông số kỹ thuật tùy chỉnh tới khách sạn " + venue.getName(),
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return savedSv;
     }
 
-    // F3.4 - Sales responses (Agree or Disagree)
     public SeminarVenue handleSalesResponse(String token, boolean agree, String reason, byte[] contractDraft, String fileName) {
         SeminarVenue sv = seminarVenueRepository.findBySalesToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Sales token không hợp lệ"));
-
-        SeminarProfile profile = sv.getSeminarProfile();
+                .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ"));
 
         if (!agree) {
             sv.setStatus("REJECTED");
             seminarVenueRepository.save(sv);
-
-            notificationService.broadcastNotification(
-                    "Khách sạn TỪ CHỐI đặt phòng",
-                    "Khách sạn " + sv.getVenue().getName() + " đã từ chối đặt phòng. Lý do: " + reason,
-                    "REJECT"
-            );
+            notificationService.broadcastNotification("Khách sạn TỪ CHỐI", "Khách sạn " + sv.getVenue().getName() + " từ chối vì: " + reason, "REJECT");
         } else {
             sv.setStatus("CONTRACT_NEGOTIATION");
             seminarVenueRepository.save(sv);
+            
+            // Tìm phiên bản cao nhất hiện tại để nâng cấp phiên bản đàm phán hợp đồng điện tử
+            Optional<ContractVersion> latestOpt = contractVersionRepository.findFirstBySeminarProfileIdOrderByVersionDesc(sv.getSeminarProfile().getId());
+            int nextVersion = latestOpt.map(c -> c.getVersion() + 1).orElse(1);
 
-            // Create Version 1 of Contract
             ContractVersion cv = ContractVersion.builder()
-                    .seminarProfile(profile)
-                    .version(1)
+                    .seminarProfile(sv.getSeminarProfile())
+                    .version(nextVersion)
                     .fileName(fileName)
                     .fileContent(contractDraft)
-                    .notes("Bản thảo hợp đồng đầu tiên do Khách sạn tải lên.")
+                    .notes("Bản thảo hợp đồng đàm phán gửi từ Khách sạn")
                     .uploadedBy("SALES")
                     .status("DRAFT")
                     .createdAt(LocalDateTime.now())
                     .build();
             contractVersionRepository.save(cv);
-
-            notificationService.broadcastNotification(
-                    "Khách sạn ĐỒNG Ý & Tải hợp đồng nháp",
-                    "Khách sạn " + sv.getVenue().getName() + " đã tải lên bản hợp đồng nháp v1. Vui lòng xem xét.",
-                    "SUCCESS"
-            );
+            
+            notificationService.broadcastNotification("Khách sạn ĐỒNG Ý", "Khách sạn đã phản hồi chấp thuận và gửi tài liệu dự thảo cho hồ sơ " + sv.getSeminarProfile().getId(), "SUCCESS");
         }
-
         return sv;
     }
 
@@ -311,7 +390,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã tải lên bản hợp đồng sửa đổi",
                 String.format("Bản hợp đồng sửa đổi v%d đã được tải lên bởi %s. Ghi chú: %s", nextVersion, uploadedBy, notes),
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -328,19 +409,17 @@ public class SeminarProfileService {
         latestCv.setStatus("APPROVED");
         contractVersionRepository.save(latestCv);
 
-        // Lock venue
         List<SeminarVenue> venues = seminarVenueRepository.findBySeminarProfileId(profileId);
         for (SeminarVenue sv : venues) {
-            if (sv.getStatus().equals("CONTRACT_NEGOTIATION")) {
+            if (sv.getStatus().equals("CONTRACT_NEGOTIATION") || sv.getStatus().equals("PENDING")) {
                 sv.setStatus("SELECTED");
                 seminarVenueRepository.save(sv);
                 
-                // Email finalized contract to hotel sales manager
                 String hotelSalesEmail = sv.getVenue().getName().toLowerCase().replace(" ", "") + "-sales@hotel.com";
                 emailService.sendContractFinalized(profile, hotelSalesEmail, latestCv.getFileName(), latestCv.getFileContent());
             } else {
                 sv.setStatus("REJECTED");
-                sv.setSalesToken(null); // Clear sales token to prevent unauthorized access
+                sv.setSalesToken(null);
                 seminarVenueRepository.save(sv);
             }
         }
@@ -351,7 +430,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Hợp đồng ĐÃ PHÊ DUYỆT",
                 "Hợp đồng hội thảo " + profileId + " đã được Admin phê duyệt chính thức. Đã chốt địa điểm.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
@@ -362,7 +443,6 @@ public class SeminarProfileService {
         SeminarProfile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
 
-        // Clean previous options if any
         List<TravelOption> oldOpts = travelOptionRepository.findBySeminarProfileId(profileId);
         travelOptionRepository.deleteAll(oldOpts);
 
@@ -385,7 +465,6 @@ public class SeminarProfileService {
             savedOptions.add(travelOptionRepository.save(option));
         }
 
-        // Re-generate invitation token or use same token to let expert choose travel option
         if (profile.getExpertToken() == null) {
             profile.setExpertToken(UUID.randomUUID().toString());
             profile.setExpertTokenExpiry(LocalDateTime.now().plusDays(7));
@@ -395,13 +474,15 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã đề xuất phương án vé máy bay",
                 "Đã tạo " + flights.size() + " phương án di chuyển gửi chuyên gia lựa chọn.",
-                "ALERT"
+                "ALERT",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return savedOptions;
     }
 
-    // F4.2 - Expert chooses one flight option -> Auto emails Travel Agency
+    // F4.2 - Expert chooses one flight option
     public TravelOption chooseTravelOption(String token, Long optionId) {
         SeminarProfile profile = profileRepository.findByExpertToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ"));
@@ -423,7 +504,6 @@ public class SeminarProfileService {
             throw new IllegalArgumentException("Option ID not found");
         }
 
-        // F4.2 - Automatically generate PDF Booking Slip and email Travel Agency
         byte[] pdfData = pdfExportService.generateTravelBookingRequest(profile, chosenOption);
         String fileName = "Yeu_cau_xuat_ve_Chuyen_gia_" + profile.getId() + ".pdf";
 
@@ -432,7 +512,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Chuyên gia đã chốt vé máy bay",
                 "Chuyên gia chọn phương án: " + chosenOption.getFlightDetails() + ". Phiếu đặt vé máy bay đã gửi tự động đến Công ty Du lịch.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profile.getId()
         );
 
         return chosenOption;
@@ -449,7 +531,7 @@ public class SeminarProfileService {
                 return matcher.group(1);
             }
         } catch (Exception e) {
-            // Ignore regex exceptions
+            // Ignore
         }
         return "";
     }
@@ -468,19 +550,20 @@ public class SeminarProfileService {
         profile.setTicketCode(finalTicketCode);
         SeminarProfile saved = profileRepository.save(profile);
 
-        // Send email confirmation to expert with ticket code
         emailService.sendItineraryToExpert(saved);
 
         notificationService.broadcastNotification(
                 "Cập nhật vé máy bay thành công",
                 "Đã lưu mã vé máy bay [" + finalTicketCode + "] và gửi thông tin lịch trình chính thức cho Chuyên gia.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
         );
 
         return saved;
     }
 
-    // F4.2 & F4.3 - Simulated Flight API Call to book tickets
+    // F4.2 & F4.3 - Sync & simulated book flight via API (Admin Logistics only)
     public SeminarProfile bookFlightViaApi(String profileId) {
         SeminarProfile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
@@ -491,15 +574,13 @@ public class SeminarProfileService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Chuyên gia chưa lựa chọn phương án chuyến bay nào để đồng bộ!"));
 
-        // Simulated HTTP outbound call representation in console logs
         System.out.println("[MOCK FLIGHT API] Connecting to flight reservation gateway...");
-        System.out.println("[MOCK FLIGHT API] Request payload details: { \"expertName\": \"" + profile.getExpert().getName() + 
+        System.out.println("[MOCK FLIGHT API] Request payload details: { \"expertName\": \"Hex" + profile.getExpert().getName() + 
                            "\", \"passportNo\": \"" + profile.getExpert().getPassportNo() + 
                            "\", \"flightDetails\": \"" + selectedOpt.getFlightDetails() + 
                            "\", \"estimatedCost\": " + selectedOpt.getEstimatedCost() + " }");
         System.out.println("[MOCK FLIGHT API] Simulated outbound HTTP response: 200 OK. Booking confirmed.");
 
-        // Generate e-ticket code (PNR-XXXXXX)
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder sb = new StringBuilder("PNR-");
         Random rand = new Random();
@@ -516,19 +597,20 @@ public class SeminarProfileService {
         profile.setTicketCode(generatedCode);
         SeminarProfile saved = profileRepository.save(profile);
 
-        // Send email confirmation to expert with ticket code
         emailService.sendItineraryToExpert(saved);
 
         notificationService.broadcastNotification(
                 "Đồng bộ & Đặt vé API thành công",
                 "Đã tự động gọi API đặt vé máy bay thành công. Mã vé xuất: [" + generatedCode + "] đã gửi tự động tới email Chuyên gia.",
-                "SUCCESS"
-        );
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
+                );
 
         return saved;
     }
 
-    // F5.1 - 14-day countdown check (Triggered by scheduler or manual check)
+    // F5.1 - 14-day countdown check
     public List<SeminarProfile> check14DaysCountdown() {
         List<SeminarProfile> profiles = profileRepository.findAll();
         List<SeminarProfile> triggered = new ArrayList<>();
@@ -543,7 +625,9 @@ public class SeminarProfileService {
                 notificationService.broadcastNotification(
                         "CẢNH BÁO: Còn 14 ngày trước hội thảo",
                         "Hồ sơ " + p.getId() + " chỉ còn đúng 14 ngày trước ngày tổ chức! Vui lòng chuẩn bị tài liệu gấp.",
-                        "ALERT"
+                        "ALERT",
+                        "Role_Admin_Logistics",
+                        p.getId()
                 );
             }
         }
@@ -558,7 +642,6 @@ public class SeminarProfileService {
         profile.setActualAttendees(actualAttendees);
         profileRepository.save(profile);
 
-        // 1 Book, 2 Brochures, 1 Nametag per actual attendee
         int books = actualAttendees;
         int brochures = actualAttendees * 2;
         int nametags = actualAttendees;
@@ -586,7 +669,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Đã kết xuất Phiếu vận chuyển tài liệu",
                 "Đã tính định mức xuất bản phẩm (Sách: " + books + ", Tờ rơi: " + brochures + ", Thẻ tên: " + nametags + ") và gửi file PDF tự động tới BP Xử lý tài liệu.",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Doc_Processor",
+                profileId
         );
 
         Map<String, Object> result = new HashMap<>();
@@ -609,8 +694,10 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Tài liệu đã chuẩn bị xong",
                 "Bộ phận Xử lý tài liệu xác nhận đã đóng gói và chuẩn bị xong toàn bộ ấn phẩm cho hồ sơ " + profileId + ".",
-                "SUCCESS"
-        );
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profileId
+            );
 
         return saved;
     }
@@ -626,7 +713,9 @@ public class SeminarProfileService {
         notificationService.broadcastNotification(
                 "Khách sạn đã nhận tài liệu",
                 "Khách sạn " + sv.getVenue().getName() + " xác nhận đã nhận bàn giao đủ ấn phẩm tài liệu cho hồ sơ " + profile.getId() + ".",
-                "SUCCESS"
+                "SUCCESS",
+                "Role_Admin_Logistics",
+                profile.getId()
         );
 
         return saved;
@@ -654,13 +743,17 @@ public class SeminarProfileService {
             notificationService.broadcastNotification(
                     "HOÀN TẤT QUY TRÌNH HẬU CẦN",
                     "Hồ sơ " + profileId + " đã hoàn tất và sẵn sàng tổ chức thành công!",
-                    "SUCCESS"
+                    "SUCCESS",
+                    "Role_Admin_Logistics",
+                    profileId
                 );
         } else {
             notificationService.broadcastNotification(
                     "Xác nhận bàn giao tài liệu",
                     "Tài liệu đã được gửi nhưng Khách sạn chưa xác nhận đã nhận hàng.",
-                    "ALERT"
+                    "ALERT",
+                    "Role_Admin_Logistics",
+                    profileId
             );
         }
 

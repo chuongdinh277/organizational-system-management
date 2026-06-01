@@ -4,13 +4,18 @@ import com.seminar.logistics.model.SystemNotification;
 import com.seminar.logistics.repository.SystemNotificationRepository;
 import com.seminar.logistics.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
+@CrossOrigin(origins = "*")
 public class NotificationController {
 
     @Autowired
@@ -19,13 +24,53 @@ public class NotificationController {
     @Autowired
     private SystemNotificationRepository notificationRepository;
 
+    // ĐÃ GỘP: Nhận RequestParam "role" để thiết lập bộ lọc luồng SSE thời gian thực đúng phân quyền
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe() {
-        return notificationService.subscribe();
+    public SseEmitter subscribe(@RequestParam(value = "role", defaultValue = "ALL") String role) {
+        return notificationService.subscribe(role);
     }
 
+    // ĐÃ GỘP: Lấy dữ liệu qua Header "X-Role" và gọi hàm findVisibleForRole từ Repository
     @GetMapping
-    public List<SystemNotification> getNotifications() {
-        return notificationRepository.findAllByOrderByCreatedAtDesc();
+    public List<SystemNotification> getNotifications(
+            @RequestHeader(value = "X-Role", defaultValue = "Role_Admin_Logistics") String role) {
+        return notificationRepository.findVisibleForRole(role);
+    }
+
+    // ĐÃ GỘP: Logic xử lý đánh dấu đã đọc thông báo kèm RBAC kiểm tra vai trò người dùng
+    @PostMapping("/{id}/read")
+    public ResponseEntity<?> markAsRead(
+            @RequestHeader(value = "X-Role", defaultValue = "Role_Admin_Logistics") String role,
+            @PathVariable Long id) {
+        return notificationRepository.findById(id)
+                .map(notification -> {
+                    if (!isVisibleToRole(notification.getTargetRole(), role)) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bạn không có quyền cập nhật thông báo này.");
+                    }
+                    notification.setReadAt(LocalDateTime.now());
+                    return ResponseEntity.ok(notificationRepository.save(notification));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // ĐÃ GỘP: Tính năng chuyển trạng thái Task hậu cần sang "DONE" có bảo mật vai trò
+    @PostMapping("/{id}/done")
+    public ResponseEntity<?> markAsDone(
+            @RequestHeader(value = "X-Role", defaultValue = "Role_Admin_Logistics") String role,
+            @PathVariable Long id) {
+        return notificationRepository.findById(id)
+                .map(notification -> {
+                    if (!isVisibleToRole(notification.getTargetRole(), role)) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bạn không có quyền hoàn tất task này.");
+                    }
+                    notification.setTaskStatus("DONE");
+                    notification.setReadAt(LocalDateTime.now());
+                    return ResponseEntity.ok(notificationRepository.save(notification));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    private boolean isVisibleToRole(String targetRole, String currentRole) {
+        return targetRole == null || "ALL".equals(targetRole) || targetRole.equals(currentRole);
     }
 }

@@ -105,8 +105,10 @@ public class EmailService {
                 "<br/><p>Trân trọng,<br/>Bộ phận Điều phối Hội thảo</p>",
                 profile.getExpectedDate(), profile.getExpectedAttendees(), roomInfoHtml, salesUrl
         );
-        sendEmail(sv.getVenue().getName().toLowerCase().replace(" ", "") + "-sales@hotel.com",
-                "[Yêu cầu Đặt phòng] Hội thảo " + profile.getSeminarType() + " - " + profile.getExpectedDate(), htmlContent);
+
+        // ĐÃ QUY ĐỔI: Sử dụng Gmail thật của bạn để nhận mail đàm phán và test chức năng
+        String testSalesEmail = "dinhvanquocchuong277@gmail.com";
+        sendEmail(testSalesEmail, "[Yêu cầu Đặt phòng] " + sv.getVenue().getName() + " - " + profile.getExpectedDate(), htmlContent);
     }
 
     public void sendContractFinalized(SeminarProfile profile, String salesEmail, String fileName, byte[] contractPdf) {
