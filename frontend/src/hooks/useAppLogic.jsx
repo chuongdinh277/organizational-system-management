@@ -6,9 +6,11 @@ export function useAppLogic() {
   const [profiles, setProfiles] = useState([]);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const selectedProfileRef = useRef(null);
+
   useEffect(() => {
     selectedProfileRef.current = selectedProfile;
   }, [selectedProfile]);
+
   const [notifications, setNotifications] = useState([]);
   const [editMode, setEditMode] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,19 +94,30 @@ export function useAppLogic() {
   const fetchLogisticsData = async (profileId) => {
     if (!profileId) return;
     try {
-      const resV = await fetch(`/api/seminars/${profileId}/venues`);
-      if (resV.ok) {
-        const dataV = await resV.json();
-        setSelectedVenues(dataV);
+      // 1. Đổi tên biến thành resVenues để không trùng lặp
+      const resVenues = await fetch(`/api/seminars/${profileId}/venues`);
+      if (resVenues.ok) {
+        const dataV = await resVenues.json();
+        const mappedVenues = dataV.map(item => ({
+          id: item.id,
+          venueName: item.venueName || "Khách sạn đối tác",
+          salesToken: item.salesToken,
+          status: item.status
+        }));
+        setSelectedVenues(mappedVenues);
       }
-      const resC = await fetch(`/api/seminars/${profileId}/contracts`);
-      if (resC.ok) {
-        const dataC = await resC.json();
+      
+      // 2. Đổi tên biến thành resContracts để tránh lỗi biên dịch khai báo lại
+      const resContracts = await fetch(`/api/seminars/${profileId}/contracts`);
+      if (resContracts.ok) {
+        const dataC = await resContracts.json();
         setSelectedContracts(dataC);
       }
-      const resT = await fetch(`/api/seminars/${profileId}/travel`);
-      if (resT.ok) {
-        const dataT = await resT.json();
+      
+      // 3. Đổi tên biến thành resTravel cho đồng bộ cấu trúc sạch sẽ
+      const resTravel = await fetch(`/api/seminars/${profileId}/travel`);
+      if (resTravel.ok) {
+        const dataT = await resTravel.json();
         setSelectedTravelOptions(dataT);
       }
     } catch (e) {
@@ -305,9 +318,18 @@ export function useAppLogic() {
     try {
       const res = await fetch(`/api/seminars/${profileId}/book?venueId=${venueId}`, { method: 'POST', headers: { 'X-Role': currentRole } });
       if (res.ok) {
+        const savedData = await res.json();
         alert('Đã gửi yêu cầu đặt phòng kèm dự toán PDF cho Sales Manager của Khách sạn!');
-        fetchProfiles();
-        fetchLogisticsData(profileId);
+        
+        if (savedData) {
+          setSelectedVenues([{
+            id: savedData.id,
+            venueName: savedData.venue?.name || "Khách sạn đối tác",
+            salesToken: savedData.salesToken,
+            status: savedData.status || "PENDING"
+          }]);
+        }
+        await fetchProfiles();
       }
     } catch (e) {
       alert(e);
@@ -331,6 +353,39 @@ export function useAppLogic() {
       alert(e);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleApproveContractDirectly = async (profileId) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/seminars/${profileId}/approve-contract`, { method: 'POST', headers: { 'X-Role': currentRole } });
+      if (res.ok) {
+        fetchProfiles();
+        fetchLogisticsData(profileId);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleManualCountdown = async () => {
+    try {
+      const res = await fetch('/api/seminars/check-countdown', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.length > 0) {
+          alert(`Đã phát hiện và kích hoạt cảnh báo 14 ngày cho ${data.length} hồ sơ!`);
+        } else {
+          alert('Không có hồ sơ nào có ngày tổ chức đúng hạn 14 ngày đếm ngược.');
+        }
+        fetchProfiles();
+      }
+    } catch (e) {
+      alert(e);
     }
   };
 
@@ -570,7 +625,6 @@ export function useAppLogic() {
     if (fileInput.files[0].size === 0) return alert('Tệp tin tải lên bị rỗng (0 bytes)!');
     const formDataUpload = new FormData();
     formDataUpload.append('file', fileInput.files[0]);
-    formDataUpload.append('notes', negotiationNotes || 'Ý kiến chỉnh sửa từ Điều phối viên.');
 
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -586,23 +640,6 @@ export function useAppLogic() {
       alert(e);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleManualCountdown = async () => {
-    try {
-      const res = await fetch('/api/seminars/check-countdown', { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.length > 0) {
-          alert(`Đã phát hiện và kích hoạt cảnh báo 14 ngày cho ${data.length} hồ sơ!`);
-        } else {
-          alert('Không có hồ sơ nào có ngày tổ chức đúng hạn 14 ngày đếm ngược.');
-        }
-        fetchProfiles();
-      }
-    } catch (e) {
-      alert(e);
     }
   };
 
@@ -657,6 +694,7 @@ export function useAppLogic() {
     handleSearchVenues,
     handleBookVenue,
     handleApproveContract,
+    handleApproveContractDirectly,
     handleProposeFlights,
     handleUpdateTicket,
     handleBookFlightViaApi,

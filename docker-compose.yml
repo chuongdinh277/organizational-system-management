@@ -6,6 +6,7 @@ services:
     container_name: seminar-mysql-db
     restart: always
     environment:
+      # CÁCH 1: Khôi phục lại password gốc để MySQL không báo lỗi Access Denied
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: seminar_db
     ports:
@@ -13,6 +14,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
+      # Nhớ sửa password test trong healthcheck cho đồng bộ thành -prootpassword
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 5s
       timeout: 5s
@@ -41,9 +43,18 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/seminar_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
+      # Đồng bộ password kết nối của Spring Boot thành rootpassword theo DB
       - SPRING_DATASOURCE_PASSWORD=rootpassword
-      - SPRING_MAIL_HOST=maildev
-      - SPRING_MAIL_PORT=1025
+      
+      # ĐỒNG BỘ CẤU HÌNH GỬI MAIL QUA GMAIL THẬT LÊN DOCKER COMPOSE
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=dinhvanquocchuong277@gmail.com
+      - SPRING_MAIL_PASSWORD=fqnydfdwutjdxfar
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED=true
+      
       - APP_AES_KEY=SeminarSystemSecretKey2026AES256
       - APP_FRONTEND_URL=http://localhost:5173
     depends_on:

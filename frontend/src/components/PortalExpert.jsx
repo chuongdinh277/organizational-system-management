@@ -1,9 +1,59 @@
-import React from 'react';
-import { Calendar, Users, CheckCircle, X, Plane, Download, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Users, CheckCircle, X, Plane } from 'lucide-react';
 
 export default function PortalExpert({ portalData, expertScheduleInput, setExpertScheduleInput, isSubmitting, handleExpertAccept, handleExpertReject, handleExpertChooseFlight }) {
   const p = portalData;
+
+  // State quản lý lý do từ chối cục bộ để đồng bộ giao diện
+  const [expertRejectReason, setExpertRejectReason] = useState(""); 
+
   if (!p) return null;
+
+  // --- LUỒNG ĐÓNG GÓI PAYLOAD JSON GỬI THẲNG LÊN ENDPOINT BACKEND ---
+  const onRejectSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Ngăn chặn xung đột sự kiện sủi bọt hệ thống
+
+    // Lấy text trực tiếp từ ô textarea dựa vào thuộc tính name
+    const reasonTextArea = e.currentTarget.elements.rejectReasonInput;
+    const actualReason = reasonTextArea ? reasonTextArea.value.trim() : "";
+
+    if (!actualReason) {
+      alert("Vui lòng nhập lý do từ chối!");
+      return;
+    }
+
+    try {
+      // Đọc mã token bảo mật ngay trên thanh địa chỉ URL của trình duyệt
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentToken = urlParams.get('token') || p.expertToken;
+
+      if (currentToken) {
+        // Tự gửi lệnh POST khớp cấu trúc JSON Payload (@RequestBody Map) mà Backend đang mong đợi
+        const response = await fetch(`/api/external/expert/reject?token=${currentToken}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reason: actualReason }) // Key "reason" bọc chuẩn JSON gửi lên
+        });
+
+        if (response.ok) {
+          alert("Gửi phản hồi từ chối thành công!");
+          window.location.reload(); // Làm mới trang để cập nhật giao diện sang trạng thái mới
+          return;
+        } else {
+          const errorText = await response.text();
+          console.warn("Lỗi API Backend, chuyển sang luồng dự phòng của hook: ", errorText);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi kết nối mạng: ", err);
+    }
+
+    // Phương án dự phòng thực thi luồng cũ nếu fetch hỏa tốc gặp sự cố
+    handleExpertReject(e, actualReason); 
+  };
 
   return (
     <div style={{ padding: '40px max(20px, (100% - 800px)/2)', minHeight: '100vh' }}>
@@ -17,7 +67,7 @@ export default function PortalExpert({ portalData, expertScheduleInput, setExper
           <span className="status-badge badge-new" style={{ marginBottom: '10px' }}>Lời mời hợp tác</span>
           <h2>Kính gửi Chuyên gia: <span className="text-gradient">{p.expertName}</span></h2>
           <p style={{ color: 'var(--text-secondary)', marginTop: '10px', lineHeight: '1.6' }}>
-            Chúng tôi trân trọng kính mời Ông/Bà tổ chức buổi <b>{p.seminarType}</b> sắp tới diễn ra tại thành phố <b>{p.city}</b>.
+            Chúng tôi trân trọng kính mời Ông/Bà tổ chức buổi <b>{p.seminarType}</b> sắp tới diễn ra tại thành phố <b>{p.city}</b> vào ngày <b>{p.expectedDate}</b>.
           </p>
           <div style={{ marginTop: '15px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
@@ -33,6 +83,7 @@ export default function PortalExpert({ portalData, expertScheduleInput, setExper
 
         {p.status === 'Mới tạo / Chờ xử lý' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            {/* FORM ĐỒNG Ý THAM GIA */}
             <form onSubmit={handleExpertAccept} className="glass-panel" style={{ background: 'rgba(16, 185, 129, 0.03)' }}>
               <h3 style={{ color: 'var(--success-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
                 <CheckCircle size={20} /> Đồng ý Tham gia
@@ -58,13 +109,15 @@ export default function PortalExpert({ portalData, expertScheduleInput, setExper
               </button>
             </form>
 
-            <form onSubmit={handleExpertReject} className="glass-panel" style={{ background: 'rgba(239, 68, 68, 0.03)' }}>
+            {/* FORM TỪ CHỐI THAM GIA */}
+            <form onSubmit={onRejectSubmit} className="glass-panel" style={{ background: 'rgba(239, 68, 68, 0.03)' }}>
               <h3 style={{ color: 'var(--danger-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
                 <X size={20} /> Từ chối Tham gia
               </h3>
               <div className="form-group">
                 <label className="form-label">Lý do từ chối *</label>
                 <textarea 
+                  name="rejectReasonInput" 
                   className="form-input" 
                   style={{ minHeight: '100px' }}
                   placeholder="Nhập lý do từ chối tổ chức..."
